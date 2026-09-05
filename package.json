@@ -1,0 +1,18 @@
+{
+  "name": "horario-enlaces",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Croni: horario semanal con enlaces, cuentas de usuario y horarios propios por persona.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "mongodb": "^6.21.0",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0"
+  }
+}

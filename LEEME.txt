@@ -1,0 +1,133 @@
+CRONI · TU HORARIO CON ENLACES
+====================================
+
+Ahora cada persona se registra con usuario y contraseña y arma SU PROPIO
+horario. Ya no se guarda en el navegador (localStorage): se guarda en el
+servidor, así que puedes entrar desde cualquier computadora/celular y ver
+lo mismo.
+
+CÓMO PROBARLO EN TU COMPUTADORA
+--------------------------------
+1. Instala Node.js (una sola vez): https://nodejs.org (versión LTS).
+2. Abre una terminal en esta carpeta y ejecuta:
+     npm install
+     npm start
+3. Abre en el navegador: http://localhost:3000
+4. Pestaña "Registrarme": crea tu usuario y contraseña (mínimo 4 caracteres).
+5. Ya adentro, funciona igual que antes: clic en un bloque vacío o en el ✎
+   para editar, actividades con su color, enlaces por actividad, etc.
+6. "Exportar .json" descarga un respaldo de tu horario; "Importar .json"
+   lo restaura (o lo pasa a otra cuenta).
+7. "Cerrar sesión" arriba a la derecha.
+
+Los datos quedan en la carpeta data/ (users.json, schedules.json). No la
+borres si quieres conservar las cuentas.
+
+FUNCIONES NUEVAS
+------------------
+- "¿Olvidaste tu contraseña?" (en la pantalla de acceso): pide tu usuario
+  o correo y te da un enlace para elegir una nueva contraseña. Si no
+  configuraste el envío de correo (ver abajo), el enlace se muestra
+  directo en pantalla y también en la consola del servidor.
+- Banner "Ahora": arriba del horario, muestra en vivo qué actividad te
+  toca en este momento según la hora real.
+- "Copiar horario de ... a ...": duplica de un clic todo un día a otro
+  (pisa lo que ya hubiera en el día destino).
+- Barra de estadísticas al final: horas totales programadas en la
+  semana, actividades distintas, días ocupados, y tu racha de días
+  seguidos usando la app.
+- Panel admin (para la primera cuenta que se registró): además de ver
+  usuarios, ahora puede eliminar cuentas y generarles una contraseña
+  temporal nueva.
+
+ACTIVAR EL ENVÍO DE CORREO PARA "OLVIDÉ MI CONTRASEÑA" (opcional)
+--------------------------------------------------------------------
+Sin esto, "olvidé mi contraseña" sigue funcionando: el enlace para
+restablecer se muestra directo en pantalla (y en la terminal donde
+corre "npm start"), así que puedes probarlo sin configurar nada.
+
+Si quieres que de verdad llegue por correo, agrega en tu archivo ".env":
+  SMTP_HOST=smtp.gmail.com
+  SMTP_PORT=587
+  SMTP_USER=tu_correo@gmail.com
+  SMTP_PASS=una_contraseña_de_aplicación_de_gmail
+  SMTP_FROM=tu_correo@gmail.com
+(Una "contraseña de aplicación" de Gmail se genera en
+myaccount.google.com/apppasswords; no uses tu contraseña normal.)
+Reinicia el servidor después de guardar el ".env".
+
+ACTIVAR "CONTINUAR CON GOOGLE" (opcional, gratis)
+--------------------------------------------------
+Sin hacer esto, la app funciona normal con usuario/contraseña. Si quieres
+que la gente también pueda entrar con su cuenta de Google:
+
+1. Entra a https://console.cloud.google.com/ (con tu cuenta de Google).
+2. Crea un proyecto nuevo (arriba a la izquierda, "Seleccionar proyecto"
+   → "Proyecto nuevo"). Cualquier nombre, ej. "horario-enlaces".
+3. Ve a "APIs y servicios" → "Pantalla de consentimiento OAuth":
+   - Tipo de usuario: "Externo" → Crear.
+   - Nombre de la app, tu correo de soporte y tu correo de contacto.
+     Guarda y continúa en las demás pantallas (no hace falta llenar más).
+   - En "Público": mientras esté en modo "Prueba" solo podrán entrar
+     los correos que agregues como "Usuarios de prueba" en esa misma
+     pantalla. Si quieres que cualquiera pueda entrar, hay que "Publicar"
+     la app (Google puede pedir verificación si usas datos sensibles,
+     pero para login básico no es necesario).
+4. Ve a "APIs y servicios" → "Credenciales" → "Crear credenciales" →
+   "ID de cliente de OAuth":
+   - Tipo de aplicación: "Aplicación web".
+   - "Orígenes autorizados de JavaScript": http://localhost:3000
+   - "URI de redireccionamiento autorizados":
+     http://localhost:3000/auth/google/callback
+   - Crear. Te muestra un "Client ID" y un "Client secret".
+5. En la carpeta del proyecto, copia el archivo ".env.example" y
+   renómbralo a ".env". Pega ahí el Client ID y el Client secret:
+     GOOGLE_CLIENT_ID=tu_client_id
+     GOOGLE_CLIENT_SECRET=tu_client_secret
+6. Reinicia el servidor (npm start). Ahora en la pantalla de acceso
+   aparece el botón "Continuar con Google".
+
+Si más adelante publicas la app en internet (Glitch, Render, etc.),
+agrega también ahí las URLs con tu dominio real, por ejemplo:
+  https://tu-proyecto.glitch.me/auth/google/callback
+y configura esa misma URL como GOOGLE_CALLBACK_URL en las variables de
+entorno de ese hosting (y agrega el origen a la pantalla de Credenciales
+de Google).
+
+CÓMO PUBLICARLO GRATIS EN INTERNET (para usarlo desde el celular o
+compartirlo con otras personas)
+--------------------------------------------------------------------
+Recomendado: Glitch (https://glitch.com) — gratis, sin tarjeta, y a
+diferencia de otras opciones gratis mantiene los archivos de la carpeta
+data/ guardados entre visitas (no se borran solos).
+
+1. Crea una cuenta gratis en glitch.com.
+2. "New Project" → "Import from GitHub" (si subes este proyecto a un
+   repositorio de GitHub primero) — o crea un proyecto Node vacío y sube
+   estos archivos con el botón de "Assets"/editor de archivos.
+3. Glitch detecta el "package.json" y corre "npm start" solo.
+4. Te da una URL pública tipo https://tu-proyecto.glitch.me — compártela.
+5. El proyecto "duerme" tras unos minutos sin visitas y despierta solo
+   cuando alguien entra (tarda unos segundos la primera vez). Eso es
+   normal en el plan gratis.
+
+Alternativas gratis si prefieres otra:
+- Render.com (plan Free, "Web Service"): fácil de conectar con GitHub,
+  pero OJO: en el plan gratis el disco se reinicia en cada despliegue,
+  así que los usuarios/horarios guardados se perderían al actualizar el
+  código. Sirve para probar, no para producción real sin una base de
+  datos aparte.
+- Railway.app: tiene un plan gratis limitado por horas al mes.
+
+Si más adelante quieres que nunca se pierdan los datos ni al redeployar
+(por ejemplo en Render), lo ideal es cambiar el almacenamiento de
+archivos JSON a una base de datos gratuita en la nube (p. ej. Supabase o
+MongoDB Atlas, ambos con capa gratuita). Dilo y lo adaptamos.
+
+ARCHIVOS DEL PROYECTO
+----------------------
+server.js          servidor Node/Express: registro, login, guardado del
+                    horario de cada usuario.
+public/index.html  la app (interfaz de acceso + el horario).
+data/               donde se guardan usuarios y horarios (se crea solo).
+package.json        dependencias (express, express-session, bcryptjs).
