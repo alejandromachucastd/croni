@@ -348,7 +348,11 @@ app.post('/api/schedule/delete-activity', requireAuth, async (req, res) => {
   res.json({ ok: true, cell: cellForWeek(rec, weekId) });
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache');
+  }
+}));
 
 const PORT = process.env.PORT || 3000;
 initStorage()
