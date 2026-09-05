@@ -465,31 +465,59 @@
 
     .two{flex-direction:column;gap:12px}
 
-    .habit-dash{flex-direction:column;align-items:stretch;text-align:center}
-    .habit-dash .dash-stat{justify-content:center}
-    .dash-col{align-items:center}
+    /* --- panel de hábitos: compacto en vez de una torre vertical --- */
+    .habit-dash{padding:14px 16px;gap:10px 16px;text-align:left}
+    .progress-ring{width:52px;height:52px}
+    .progress-ring span{font-size:.8rem}
+    .habit-dash .dash-stat{flex:1 1 0;min-width:80px;flex-direction:column;align-items:center;text-align:center;gap:4px}
+    .habit-dash .dash-stat .dash-icon{margin:0}
+    .habit-dash .dash-stat .dash-sub{display:none}
+    .dash-title{font-size:.88rem}
 
-    .habit-filterbar{flex-direction:column;align-items:stretch}
-    .habit-search{margin-left:0;width:100%;min-width:0}
-    #btnNewHabitCat{align-self:flex-start}
+    /* --- barra de filtros: pestañas en una fila con scroll, sin amontonarse --- */
+    .habit-filterbar{flex-wrap:wrap;row-gap:10px}
+    .habit-tabs{flex:1 1 100%;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    .habit-tabs::-webkit-scrollbar{display:none}
+    .habit-tabs button{flex:0 0 auto}
+    .habit-filterbar .icon-btn{flex:0 0 auto;white-space:nowrap}
+    .habit-search{flex:1 1 100%;margin-left:0;width:100%;min-width:0}
 
+    /* --- encabezado de categoría: más presencia visual --- */
+    .habit-group-head{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+
+    /* --- tarjetas: sin manija de arrastre, acciones en su propia fila --- */
+    .drag-handle{display:none}
     .act-card,.cat-card,.habit-card,.goal-card{flex-wrap:wrap;row-gap:10px}
-    .act-info,.habit-info,.goal-info{min-width:140px}
+    .act-info,.habit-info,.goal-info{flex:1 1 100%;min-width:0}
     .habit-name,.act-name,.goal-title,.cat-card .act-name{white-space:normal;overflow-wrap:anywhere}
     .act-actions,.habit-toggle,.habit-menu-btn{margin-left:0}
     .habit-toggle{flex:1 1 auto;justify-content:center}
+    .habit-menu-btn{flex:0 0 auto}
 
+    /* --- semana: el selector de fecha en su propia fila para que no se corte --- */
     .topbar{gap:8px;margin-bottom:10px}
-    .week-nav{width:100%;justify-content:space-between}
-    .week-picker{flex:1;min-width:0}
+    .week-nav{width:100%;flex-wrap:wrap;justify-content:space-between}
+    .week-label{flex:1 1 auto;min-width:0}
+    .week-picker{flex:1 1 100%;width:100%;min-width:0;order:1;text-align:center}
+    .week-today{order:2;flex:1 1 auto}
     .now-banner{margin-bottom:8px;padding:9px 12px}
     .toolbar{padding:5px;margin-bottom:8px}
     .day-pills button{padding:5px 10px}
 
+    /* --- estadísticas: tarjetas apiladas de forma uniforme --- */
     .stat-grid{grid-template-columns:1fr 1fr}
+    .stat-card{flex-direction:column;align-items:flex-start;text-align:left;gap:8px;padding:12px 14px}
+    .stat-card .stat-icon{width:30px;height:30px}
+    .stat-value2{font-size:1rem}
+
+    /* --- resumen mensual: título y navegación en filas separadas --- */
+    .cal-nav{flex-wrap:wrap;justify-content:center}
+    .cal-nav h3{flex:1 1 100%;text-align:left}
+    .cal-nav span[style*="flex:1"]{display:none}
+    .cal-nav span{min-width:0;flex:0 0 auto}
+
     .modal{padding:18px}
     .overlay{padding:16px 10px;align-items:center}
-    .cal-nav span{min-width:0;flex:1}
   }
 </style>
 </head>
