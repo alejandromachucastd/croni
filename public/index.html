@@ -46,6 +46,18 @@
     .auth-visual .visual-caption{display:none}
     .auth-card{padding:28px}
   }
+  @media (max-width:480px){
+    #authScreen{padding:0;align-items:flex-start}
+    .auth-shell{max-width:none;min-height:100vh;border-radius:0;border:none;box-shadow:none}
+    .auth-visual{height:130px}
+    .auth-card{padding:22px 20px 26px}
+    .logo-word{font-size:1.9rem;margin-bottom:10px}
+    .auth-card h1{font-size:1.25rem}
+    .auth-card p.sub{margin-bottom:16px;font-size:.82rem}
+    .auth-features{margin-bottom:18px;gap:8px}
+    .auth-features li{font-size:.76rem}
+    .auth-features .fic{width:22px;height:22px}
+  }
   .logo-word{font-family:'Poppins',"Segoe UI",sans-serif;font-weight:800;font-size:2.3rem;
     letter-spacing:-.03em;margin:0 0 14px;line-height:1}
   .logo-word .c1{color:var(--text)}
@@ -419,6 +431,22 @@
   :root[data-theme="dark"] .kind-toggle button.kind-good.active{color:#4ade80}
   :root[data-theme="dark"] .kind-toggle button.kind-bad.active{color:#f87171}
 
+  /* ===== tour de bienvenida ===== */
+  .onboard-modal{max-width:400px;text-align:center;padding:28px 26px 22px}
+  .onboard-icon{width:56px;height:56px;border-radius:16px;background:var(--accent);color:#1a1a1a;
+    display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+  .onboard-icon .ic{width:28px;height:28px}
+  .onboard-modal h2{font-size:1.05rem;margin:0 0 8px}
+  .onboard-modal p.sub{font-size:.85rem;line-height:1.5;margin:0 0 20px}
+  .onboard-dots{display:flex;justify-content:center;gap:6px;margin-bottom:18px}
+  .onboard-dots span{width:6px;height:6px;border-radius:50%;background:var(--border);transition:.15s}
+  .onboard-dots span.active{background:var(--accent);width:16px;border-radius:4px}
+  .onboard-actions{display:flex;gap:8px}
+  .onboard-actions button{flex:1}
+  .onboard-skip{margin-top:12px;background:none;border:none;color:var(--muted);font-size:.75rem;cursor:pointer;text-decoration:underline}
+  .onboard-credit{margin-top:16px;font-size:.65rem;color:var(--muted)}
+  .app-credit{font-size:.62rem;color:var(--muted);text-align:center;padding:8px 10px 2px;opacity:.7}
+
   .two{display:flex;gap:10px}
   .two>div{flex:1}
   .modal-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
@@ -550,6 +578,7 @@
       <p class="auth-foot">No compartimos tu información. Solo usamos tu cuenta para identificarte.</p>
     </div>
     <p class="sub" id="googleDisabledMsg" hidden>El inicio de sesión con Google no está configurado en este servidor todavía.</p>
+    <p class="app-credit">Croni · Desarrollado por Zelyon</p>
   </div>
 </div>
 </div>
@@ -576,8 +605,10 @@
       <button class="nav-item" id="btnExport"><svg class="ic" viewBox="0 0 24 24"><use href="#i-download"/></svg> Exportar backup</button>
       <button class="nav-item" id="btnImport"><svg class="ic" viewBox="0 0 24 24"><use href="#i-upload"/></svg> Importar backup</button>
       <button class="nav-item" id="themeToggle"><svg class="ic" viewBox="0 0 24 24"><use href="#i-moon" id="themeIconUse"/></svg> <span id="themeLabel">Modo oscuro</span></button>
+      <button class="nav-item" id="btnHelpTour"><svg class="ic" viewBox="0 0 24 24"><use href="#i-book"/></svg> Cómo funciona</button>
       <button class="nav-item" id="btnLogout"><svg class="ic" viewBox="0 0 24 24"><use href="#i-logout"/></svg> Cerrar sesión</button>
     </div>
+    <p class="app-credit">Croni · Desarrollado por Zelyon</p>
   </aside>
 
   <main class="content">
@@ -973,6 +1004,21 @@
   </div>
 </div>
 
+<div class="overlay" id="onboardOverlay">
+  <div class="modal onboard-modal">
+    <div class="onboard-icon"><svg class="ic" viewBox="0 0 24 24" id="onboardIcon"><use href="#i-calendar"/></svg></div>
+    <h2 id="onboardTitle"></h2>
+    <p class="sub" id="onboardText"></p>
+    <div class="onboard-dots" id="onboardDots"></div>
+    <div class="onboard-actions">
+      <button class="ghost" id="onboardPrev">Atrás</button>
+      <button class="save" id="onboardNext">Siguiente</button>
+    </div>
+    <button class="onboard-skip" id="onboardSkip">Saltar tour</button>
+    <p class="onboard-credit" id="onboardCredit" hidden>Croni · Desarrollado por Zelyon</p>
+  </div>
+</div>
+
 <svg style="position:absolute;width:0;height:0" aria-hidden="true">
 <defs>
 <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="7" y1="2" x2="7" y2="6"/><line x1="17" y1="2" x2="17" y2="6"/></symbol>
@@ -1143,6 +1189,51 @@ function showPrompt(message, defaultValue, opts){
   });
 }
 
+/* ============ TOUR DE BIENVENIDA ============ */
+const ONBOARD_STEPS = [
+  { icon:'calendar', title:'¡Bienvenido a Croni!', text:'Arma tu horario semanal, dale seguimiento a tus hábitos y metas, y mira en qué se te va el tiempo. Todo en un solo lugar y guardado en tu cuenta.' },
+  { icon:'grid', title:'Tu horario', text:'Toca cualquier celda para asignarle una actividad. Cada semana se guarda por separado, y puedes copiar el horario de un día a otro con el botón "Copiar día".' },
+  { icon:'tag', title:'Actividades y categorías', text:'Cada actividad pertenece a una categoría, y la categoría define su color. Puedes agregar tareas dentro de cada actividad para no perder el detalle.' },
+  { icon:'check', title:'Hábitos', text:'Registra cosas que quieres cumplir cada día (o evitar). Marca tus prioritarios con la estrella ⭐ y sigue tu racha día a día.' },
+  { icon:'target', title:'Metas y estadísticas', text:'Ponte metas con fecha límite, y revisa en Estadísticas cuánto tiempo le dedicas a cada cosa, con resúmenes por semana y por mes.' }
+];
+let onboardStep = 0;
+const onboardOv = document.getElementById('onboardOverlay');
+function renderOnboardStep(){
+  const step = ONBOARD_STEPS[onboardStep];
+  document.getElementById('onboardIcon').setAttribute('href', '#i-'+step.icon);
+  document.getElementById('onboardTitle').textContent = step.title;
+  document.getElementById('onboardText').textContent = step.text;
+  document.getElementById('onboardDots').innerHTML = ONBOARD_STEPS.map((_,i)=>
+    '<span'+(i===onboardStep?' class="active"':'')+'></span>').join('');
+  document.getElementById('onboardPrev').style.visibility = onboardStep===0 ? 'hidden' : 'visible';
+  const isLast = onboardStep===ONBOARD_STEPS.length-1;
+  document.getElementById('onboardNext').textContent = isLast ? 'Empezar' : 'Siguiente';
+  document.getElementById('onboardSkip').hidden = isLast;
+  document.getElementById('onboardCredit').hidden = !isLast;
+}
+function showOnboarding(){
+  onboardStep = 0;
+  renderOnboardStep();
+  onboardOv.classList.add('open');
+}
+function closeOnboarding(){
+  onboardOv.classList.remove('open');
+  if(!data.onboarded){
+    data.onboarded = true;
+    api('/api/onboarding-done', { method:'POST' }).catch(()=>{});
+  }
+}
+document.getElementById('onboardNext').addEventListener('click', ()=>{
+  if(onboardStep < ONBOARD_STEPS.length-1){ onboardStep++; renderOnboardStep(); }
+  else closeOnboarding();
+});
+document.getElementById('onboardPrev').addEventListener('click', ()=>{
+  if(onboardStep>0){ onboardStep--; renderOnboardStep(); }
+});
+document.getElementById('onboardSkip').addEventListener('click', closeOnboarding);
+document.getElementById('btnHelpTour').addEventListener('click', showOnboarding);
+
 /* ============ SESIÓN / API ============ */
 async function api(path, opts){
   const res = await fetch(path, Object.assign({ headers:{'Content-Type':'application/json'} }, opts));
@@ -1199,7 +1290,8 @@ async function loadSchedule(){
   currentWeekId = isoWeekId(viewedDate);
   const resp = await api('/api/schedule?week='+encodeURIComponent(currentWeekId));
   data = { acts: resp.acts||{}, link: resp.link||{}, categories: resp.categories||[], cell: resp.cell||{},
-    habits: resp.habits||[], goals: resp.goals||[], habitCategories: resp.habitCategories||[], habitsBestStreak: resp.habitsBestStreak||0 };
+    habits: resp.habits||[], goals: resp.goals||[], habitCategories: resp.habitCategories||[], habitsBestStreak: resp.habitsBestStreak||0,
+    onboarded: !!resp.onboarded };
   normalizeCategories();
   currentStreak = resp.streak || 0;
   currentWeekId = resp.weekId || currentWeekId;
@@ -1229,6 +1321,7 @@ async function enterApp(){
   document.getElementById('statQuote').textContent = QUOTES[Math.floor(Date.now()/86400000) % QUOTES.length];
   await loadSchedule();
   render();
+  if(!data.onboarded) showOnboarding();
 }
 
 async function saveRemote(){

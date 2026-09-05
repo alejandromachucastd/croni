@@ -248,7 +248,7 @@ app.get('/api/schedule', requireAuth, async (req, res) => {
   res.json({
     acts: rec.acts || {}, link: rec.link || {}, categories: rec.categories || [],
     habits: rec.habits || [], goals: rec.goals || [], habitCategories: rec.habitCategories || [],
-    habitsBestStreak: rec.habitsBestStreak || 0,
+    habitsBestStreak: rec.habitsBestStreak || 0, onboarded: !!rec.onboarded,
     cell: cellForWeek(rec, weekId), weekId, streak: streakFromVisits(visits),
     minWeek: MIN_WEEK, maxWeek: MAX_WEEK
   });
@@ -275,6 +275,14 @@ app.put('/api/schedule', requireAuth, async (req, res) => {
     habitCategories: habitCategories || prev.habitCategories || [],
     habitsBestStreak: Number.isFinite(habitsBestStreak) ? habitsBestStreak : (prev.habitsBestStreak || 0)
   };
+  await saveSchedules(schedules);
+  res.json({ ok: true });
+});
+
+app.post('/api/onboarding-done', requireAuth, async (req, res) => {
+  const key = req.session.username;
+  const schedules = await getSchedules();
+  schedules[key] = { ...(schedules[key] || {}), onboarded: true };
   await saveSchedules(schedules);
   res.json({ ok: true });
 });
