@@ -442,8 +442,14 @@
   .onboard-dots span{width:6px;height:6px;border-radius:50%;background:var(--border);transition:.15s}
   .onboard-dots span.active{background:var(--accent);width:16px;border-radius:4px}
   .onboard-actions{display:flex;gap:8px}
-  .onboard-actions button{flex:1}
-  .onboard-skip{margin-top:12px;background:none;border:none;color:var(--muted);font-size:.75rem;cursor:pointer;text-decoration:underline}
+  .onboard-actions button{flex:1;border:1px solid var(--border);border-radius:9px;padding:10px 16px;
+    cursor:pointer;font-size:.85rem;font-weight:600;background:var(--panel-2);color:var(--text);
+    transition:filter .12s,transform .1s,box-shadow .12s}
+  .onboard-actions button:hover{filter:brightness(1.06)}
+  .onboard-actions button:active{transform:translateY(1px)}
+  .onboard-actions .save{background:var(--accent);color:#1a1a1a;border-color:var(--accent);font-weight:700;
+    box-shadow:0 2px 8px rgba(224,150,0,.25)}
+  .onboard-skip{margin-top:14px;background:none;border:none;color:var(--muted);font-size:.75rem;cursor:pointer;text-decoration:underline}
   .onboard-credit{margin-top:16px;font-size:.65rem;color:var(--muted)}
   .app-credit{font-size:.62rem;color:var(--muted);text-align:center;padding:8px 10px 2px;opacity:.7}
   .app-credit a{color:inherit}
