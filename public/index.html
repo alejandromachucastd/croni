@@ -457,6 +457,22 @@
     font-weight:700;font-size:.78rem;cursor:pointer;white-space:nowrap;transition:filter .12s}
   .cookie-banner button:hover{filter:brightness(1.08)}
 
+  /* ===== notificaciones (toasts) ===== */
+  .toast-stack{position:fixed;bottom:20px;right:20px;z-index:300;display:flex;flex-direction:column;gap:10px;
+    max-width:320px;width:100%;pointer-events:none}
+  .toast{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 14px;
+    box-shadow:0 8px 24px rgba(0,0,0,.18);display:flex;gap:10px;align-items:flex-start;
+    animation:toast-in .2s ease;pointer-events:auto}
+  .toast .toast-icon{width:30px;height:30px;border-radius:8px;background:var(--accent);color:#1a1a1a;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .toast .toast-body{flex:1;min-width:0}
+  .toast .toast-title{font-weight:700;font-size:.82rem;margin-bottom:2px}
+  .toast .toast-text{font-size:.76rem;color:var(--muted)}
+  .toast .toast-close{background:none;border:none;color:var(--muted);cursor:pointer;flex-shrink:0;padding:2px;font-size:.9rem;line-height:1}
+  .toast .toast-close:hover{color:var(--text)}
+  @keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @media (max-width:640px){ .toast-stack{left:12px;right:12px;bottom:12px;max-width:none} }
+
   .two{display:flex;gap:10px}
   .two>div{flex:1}
   .modal-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
@@ -779,6 +795,14 @@
         <p class="ok-msg" id="setProfileOk" hidden>Guardado.</p>
         <button class="go" id="btnSaveProfile" style="width:auto;padding:8px 18px">Guardar</button>
       </div>
+      <div class="settings-block">
+        <h3>Notificaciones</h3>
+        <p class="view-sub" style="margin-bottom:12px">Avisos dentro de la app: cuando empieza una actividad de tu horario, hábitos prioritarios pendientes y metas por vencer.</p>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.85rem">
+          <input type="checkbox" id="setNotifsEnabled" style="width:16px;height:16px">
+          Activar notificaciones dentro de la app
+        </label>
+      </div>
     </section>
   </main>
 </div>
@@ -1075,6 +1099,8 @@
   <button id="cookieAccept">Entendido</button>
 </div>
 
+<div class="toast-stack" id="toastStack"></div>
+
 <script>
 /* ============ ACTIVIDADES BASE (plantilla) ============ */
 const BASE = {};
@@ -1250,6 +1276,81 @@ document.getElementById('onboardPrev').addEventListener('click', ()=>{
 document.getElementById('onboardSkip').addEventListener('click', closeOnboarding);
 document.getElementById('btnHelpTour').addEventListener('click', showOnboarding);
 
+/* ============ NOTIFICACIONES (avisos dentro de la app) ============ */
+function notifsEnabled(){
+  try{ return localStorage.getItem('croni-notifs-enabled') !== '0'; }catch(e){ return true; }
+}
+function showToast(title, text, icon){
+  if(!notifsEnabled()) return;
+  const stack = document.getElementById('toastStack');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = '<span class="toast-icon"><svg class="ic" viewBox="0 0 24 24"><use href="#i-'+(icon||'calendar')+'"/></svg></span>'+
+    '<div class="toast-body"><div class="toast-title">'+esc(title)+'</div><div class="toast-text">'+esc(text)+'</div></div>'+
+    '<button class="toast-close">✕</button>';
+  el.querySelector('.toast-close').addEventListener('click', ()=>el.remove());
+  stack.appendChild(el);
+  setTimeout(()=>{ if(el.parentNode) el.remove(); }, 9000);
+}
+
+let lastNotifiedBlock = null;
+function checkActivityNotif(){
+  if(currentWeekId !== isoWeekId(new Date())) return;
+  const now = new Date();
+  const jsDay = now.getDay();
+  const dayIdx = jsDay===0 ? 6 : jsDay-1;
+  let matchedRow = null;
+  HORARIO.forEach((row,ri)=>{
+    const m = row.hora.match(/^(\d+):(\d+)-(\d+):(\d+)/);
+    if(!m) return;
+    const startMin = parseInt(m[1],10)*60+parseInt(m[2],10);
+    const endMin = parseInt(m[3],10)*60+parseInt(m[4],10);
+    const nowMin = now.getHours()*60+now.getMinutes();
+    if(nowMin>=startMin && nowMin<endMin) matchedRow = ri;
+  });
+  if(matchedRow===null) return;
+  const blockKey = todayLocal()+'|'+matchedRow;
+  if(blockKey===lastNotifiedBlock) return;
+  lastNotifiedBlock = blockKey;
+  const act = effAct(dayIdx, matchedRow);
+  if(act) showToast('Es hora de: '+act, HORARIO[matchedRow].hora, 'calendar');
+}
+
+function checkDailyReminders(){
+  const today = todayLocal();
+  let lastDay = null;
+  try{ lastDay = localStorage.getItem('croni-notif-day'); }catch(e){}
+  if(lastDay===today) return;
+  try{ localStorage.setItem('croni-notif-day', today); }catch(e){}
+
+  const habits = data.habits||[];
+  const prioPending = habits.filter(h=>{
+    if(!h.priority) return false;
+    const marked = !!(h.history||{})[today];
+    return h.kind==='good' ? !marked : marked;
+  }).length;
+  if(prioPending>0){
+    showToast('Hábitos prioritarios pendientes', prioPending+(prioPending===1?' hábito por cumplir hoy.':' hábitos por cumplir hoy.'), 'star');
+  }
+
+  const goalsToday = (data.goals||[]).filter(g=>!g.done && g.dueDate===today);
+  goalsToday.forEach(g=>showToast('Meta vence hoy', g.title, 'target'));
+  const goalsOverdue = (data.goals||[]).filter(g=>!g.done && g.dueDate<today);
+  if(goalsOverdue.length>0){
+    showToast('Metas vencidas', goalsOverdue.length+(goalsOverdue.length===1?' meta pasó su fecha límite.':' metas pasaron su fecha límite.'), 'target');
+  }
+}
+
+function runNotifChecks(){
+  checkActivityNotif();
+  checkDailyReminders();
+}
+setInterval(runNotifChecks, 60000);
+
+document.getElementById('setNotifsEnabled').addEventListener('change', e=>{
+  try{ localStorage.setItem('croni-notifs-enabled', e.target.checked ? '1' : '0'); }catch(err){}
+});
+
 /* ============ SESIÓN / API ============ */
 async function api(path, opts){
   const res = await fetch(path, Object.assign({ headers:{'Content-Type':'application/json'} }, opts));
@@ -1338,6 +1439,8 @@ async function enterApp(){
   await loadSchedule();
   render();
   if(!data.onboarded) showOnboarding();
+  try{ document.getElementById('setNotifsEnabled').checked = notifsEnabled(); }catch(e){}
+  runNotifChecks();
 }
 
 async function saveRemote(){
