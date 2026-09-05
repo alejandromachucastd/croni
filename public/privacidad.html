@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Croni · Aviso de privacidad</title>
+<style>
+  :root{
+    --bg:#ffffff; --panel:#f4f5f7; --text:#1c1e22; --muted:#6b7280; --border:#d8dbe0; --accent:#E09600;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#14161a; --panel:#1c1f24; --text:#e7e9ec; --muted:#9aa0ab; --border:#33373f; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+    line-height:1.6;padding:32px 18px 60px}
+  .wrap{max-width:680px;margin:0 auto}
+  a.back{color:var(--muted);text-decoration:none;font-size:.85rem}
+  a.back:hover{color:var(--accent)}
+  h1{font-size:1.5rem;margin:22px 0 4px}
+  p.updated{color:var(--muted);font-size:.78rem;margin:0 0 28px}
+  h2{font-size:1.05rem;margin:28px 0 8px}
+  p,li{font-size:.9rem;color:var(--text)}
+  ul{padding-left:20px}
+  .box{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin:16px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">← Volver a Croni</a>
+  <h1>Aviso de privacidad</h1>
+  <p class="updated">Última actualización: septiembre de 2026</p>
+
+  <p>Croni es una aplicación para organizar tu horario semanal, hábitos y metas personales. Este aviso explica qué información recabamos, para qué la usamos y cómo la protegemos.</p>
+
+  <h2>¿Qué datos recabamos?</h2>
+  <p>Al iniciar sesión con tu cuenta de Google, recibimos únicamente:</p>
+  <ul>
+    <li>Tu nombre y dirección de correo electrónico (para identificarte dentro de la app).</li>
+  </ul>
+  <p>No recibimos ni almacenamos tu contraseña de Google en ningún momento — el inicio de sesión se hace directamente con Google mediante OAuth 2.0.</p>
+  <p>Además, guardamos la información que tú mismo capturas dentro de la app: tu horario semanal, actividades, categorías, hábitos, metas y estadísticas de uso.</p>
+
+  <h2>¿Para qué usamos tus datos?</h2>
+  <ul>
+    <li>Identificarte y mantener tu sesión iniciada.</li>
+    <li>Guardar y mostrarte tu propio horario, hábitos y metas.</li>
+    <li>Calcular tus estadísticas y rachas.</li>
+  </ul>
+  <p>No usamos tu información con fines publicitarios, no la vendemos ni la compartimos con terceros.</p>
+
+  <h2>¿Dónde se guarda tu información?</h2>
+  <p>Tus datos se almacenan de forma privada en una base de datos (MongoDB Atlas). Cada cuenta solo puede ver su propia información — nadie más tiene acceso a tu horario, hábitos o metas.</p>
+
+  <div class="box">
+    <h2 style="margin-top:0">Uso de cookies</h2>
+    <p style="margin-bottom:0">Croni usa una sola cookie, estrictamente necesaria para mantener tu sesión iniciada mientras usas la app (no es de rastreo ni publicitaria, y no se comparte con terceros). Se borra automáticamente al cerrar sesión o después de 30 días de inactividad. Si la rechazas, no podrás iniciar sesión, ya que es indispensable para el funcionamiento de la app.</p>
+  </div>
+
+  <h2>Tus derechos</h2>
+  <p>Puedes pedir en cualquier momento que eliminemos tu cuenta y toda tu información — desde Ajustes dentro de la app, o contactando al administrador con el correo que usaste para registrarte.</p>
+
+  <h2>Cambios a este aviso</h2>
+  <p>Si actualizamos este aviso, lo notificaremos dentro de la app.</p>
+</div>
+</body>
+</html>
