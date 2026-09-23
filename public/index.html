@@ -309,6 +309,18 @@
   .habit-toggle.on-good:hover{filter:brightness(1.15)}
   .habit-toggle.on-bad{background:#7a2020;border-color:#7a2020;color:#fff}
   .habit-toggle.on-bad:hover{filter:brightness(1.15)}
+  /* cronómetro de hábitos a evitar */
+  .habit-clock{display:flex;gap:6px;margin:8px 0 4px}
+  .habit-clock .u{background:var(--panel-2);border:1px solid var(--border);border-radius:9px;padding:5px 0;min-width:50px;text-align:center}
+  .habit-clock .u b{display:block;font-size:1.15rem;line-height:1.1;font-variant-numeric:tabular-nums}
+  .habit-clock .u span{font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .habit-clock .u.u-days{border-color:color-mix(in srgb, #1f6b3a 45%, var(--border));background:color-mix(in srgb, #1f6b3a 10%, var(--panel-2))}
+  .habit-meta.timer-meta{display:block;line-height:1.5}
+  .habit-meta.timer-meta .ic{vertical-align:-1px;margin-right:4px}
+  .habit-toggle.timer-start{background:var(--accent);border-color:var(--accent);color:#1a1a1a}
+  .habit-toggle.timer-start:hover{filter:brightness(1.08)}
+  .habit-toggle.timer-relapse{border-color:#7a2020;color:#b33a3a}
+  .habit-toggle.timer-relapse:hover{background:#7a2020;color:#fff}
   .habit-menu-btn{background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:8px;
     width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
     font-weight:800;letter-spacing:1px;transition:.12s}
@@ -971,7 +983,23 @@
   <button type="button" data-act="priority"><svg class="ic" viewBox="0 0 24 24"><use href="#i-star"/></svg><span id="habitMenuPriorityLabel">Marcar prioritario</span></button>
   <button type="button" data-act="history"><svg class="ic" viewBox="0 0 24 24"><use href="#i-calendar"/></svg>Ver historial</button>
   <button type="button" data-act="edit"><svg class="ic" viewBox="0 0 24 24"><use href="#i-edit"/></svg>Editar</button>
+  <button type="button" data-act="timer-edit" id="habitMenuTimerEdit"><svg class="ic" viewBox="0 0 24 24"><use href="#i-clock"/></svg>Cambiar inicio del cronómetro</button>
+  <button type="button" data-act="timer-stop" id="habitMenuTimerStop"><svg class="ic" viewBox="0 0 24 24"><use href="#i-x"/></svg>Detener cronómetro</button>
   <button type="button" data-act="delete" class="danger"><svg class="ic" viewBox="0 0 24 24"><use href="#i-trash"/></svg>Eliminar</button>
+</div>
+
+<div class="overlay" id="timerOverlay">
+  <div class="modal" style="max-width:420px">
+    <h2 id="timerModalTitle">Iniciar cronómetro</h2>
+    <p class="sub" id="timerModalSub">¿Desde cuándo llevas sin caer? Si empiezas hoy, deja la fecha y hora de ahora.</p>
+    <div class="field"><label>Sin fallar desde</label><input type="datetime-local" id="timerStartInput"></div>
+    <p class="err" id="timerErr"></p>
+    <div class="modal-actions">
+      <button class="save" id="timerSave">Iniciar</button>
+      <button class="ghost" id="timerNow">Desde ahora</button>
+      <button class="ghost" id="timerCancel">Cancelar</button>
+    </div>
+  </div>
 </div>
 
 <div class="dropdown-menu" id="actMenu" hidden>
@@ -1087,6 +1115,7 @@
 <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
 <symbol id="i-undo" viewBox="0 0 24 24"><path d="M3 10h11a5 5 0 0 1 0 10h-3"/><polyline points="7 4 3 10 7 16"/></symbol>
 <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><polyline points="12 9 12 13 15 15"/><line x1="10" y1="2" x2="14" y2="2"/></symbol>
 <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="5.5" y1="18.5" x2="18.5" y2="5.5"/></symbol>
 <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
 <symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9"/></symbol>
@@ -1589,6 +1618,7 @@ function habitCard(h){
   const toggleLabel = h.kind==='good' ? (marked?'Completado':'Completar') : (marked?'Hoy caí':'Marcar que caí');
   const onClass = marked ? (h.kind==='good'?'on-good':'on-bad') : '';
   const cat = findHabitCat(h.categoryId);
+  if(h.kind==='bad') return badHabitCard(h, cat);
   return '<div class="habit-card" draggable="true" data-id="'+esc(h.id)+'">'+
     '<span class="drag-handle" title="Arrastrar">⋮⋮</span>'+
     (h.icon ? '<span class="habit-icon-badge" style="background:'+(cat?cat.color:'#555')+'"><svg class="ic" viewBox="0 0 24 24"><use href="#i-'+h.icon+'"/></svg></span>' : '')+
@@ -1597,6 +1627,122 @@ function habitCard(h){
     '<button class="habit-toggle '+onClass+' btn-toggle-habit">'+(marked?'<svg class="ic" viewBox="0 0 24 24"><use href="#i-check"/></svg> ':'')+toggleLabel+'</button>'+
     '<button class="habit-menu-btn btn-habit-menu">⋮</button>'+
     '</div>';
+}
+
+/* ---- cronómetro "sin fallar" (hábitos a evitar) ---- */
+function splitDuration(ms){
+  const t = Math.max(0, Math.floor(ms/1000));
+  return { d:Math.floor(t/86400), h:Math.floor(t%86400/3600), m:Math.floor(t%3600/60), s:t%60 };
+}
+function fmtDurationShort(ms){
+  const {d,h,m} = splitDuration(ms);
+  if(d) return d+(d===1?' día ':' días ')+h+' h';
+  if(h) return h+' h '+m+' min';
+  return m+' min';
+}
+function habitBestRun(h){
+  const running = h.timerStart ? Date.now()-new Date(h.timerStart).getTime() : 0;
+  return Math.max(h.bestRunMs||0, running);
+}
+function clockHtml(ms){
+  const {d,h,m,s} = splitDuration(ms);
+  const p = n=>String(n).padStart(2,'0');
+  return '<div class="u u-days"><b>'+d+'</b><span>'+(d===1?'día':'días')+'</span></div>'+
+    '<div class="u"><b>'+p(h)+'</b><span>horas</span></div>'+
+    '<div class="u"><b>'+p(m)+'</b><span>min</span></div>'+
+    '<div class="u"><b>'+p(s)+'</b><span>seg</span></div>';
+}
+function badHabitCard(h, cat){
+  const today = todayLocal();
+  const marked = !!(h.history||{})[today];
+  const running = !!h.timerStart;
+  let body, buttons;
+  if(running){
+    const start = new Date(h.timerStart);
+    const since = start.toLocaleDateString('es-MX',{day:'numeric',month:'short'})+', '+start.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+    const best = habitBestRun(h);
+    body = '<div class="habit-clock" data-start="'+esc(h.timerStart)+'">'+clockHtml(Date.now()-start.getTime())+'</div>'+
+      '<div class="habit-meta timer-meta"><svg class="ic" viewBox="0 0 24 24" style="width:11px;height:11px;color:#e0962f"><use href="#i-clock"/></svg>Sin fallar desde '+esc(since)+
+      ' · <span style="white-space:nowrap">Mejor marca: <span class="habit-best" data-best="'+(h.bestRunMs||0)+'">'+fmtDurationShort(best)+'</span></span></div>';
+    buttons = '<button class="habit-toggle timer-relapse btn-relapse"><svg class="ic" viewBox="0 0 24 24"><use href="#i-undo"/></svg> Recaí</button>';
+  } else {
+    const streak = habitStreak(h);
+    body = '<div class="habit-meta"><svg class="ic" viewBox="0 0 24 24" style="width:11px;height:11px;color:#e0962f"><use href="#i-undo"/></svg>'+
+      streak+(streak===1?' día limpio seguido':' días limpios seguidos')+
+      (h.bestRunMs ? ' · Mejor marca: '+fmtDurationShort(h.bestRunMs) : '')+'</div>';
+    buttons = '<button class="habit-toggle timer-start btn-start-timer"><svg class="ic" viewBox="0 0 24 24"><use href="#i-clock"/></svg> Iniciar</button>'+
+      '<button class="habit-toggle '+(marked?'on-bad':'')+' btn-toggle-habit">'+(marked?'<svg class="ic" viewBox="0 0 24 24"><use href="#i-check"/></svg> Hoy caí':'Marcar que caí')+'</button>';
+  }
+  return '<div class="habit-card" draggable="true" data-id="'+esc(h.id)+'">'+
+    '<span class="drag-handle" title="Arrastrar">⋮⋮</span>'+
+    (h.icon ? '<span class="habit-icon-badge" style="background:'+(cat?cat.color:'#555')+'"><svg class="ic" viewBox="0 0 24 24"><use href="#i-'+h.icon+'"/></svg></span>' : '')+
+    '<div class="habit-info"><div class="habit-name">'+(h.priority?'<svg class="ic" viewBox="0 0 24 24" style="fill:currentColor"><use href="#i-star"/></svg>':'')+esc(h.name)+'</div>'+
+    body+'</div>'+buttons+
+    '<button class="habit-menu-btn btn-habit-menu">⋮</button>'+
+    '</div>';
+}
+setInterval(()=>{
+  document.querySelectorAll('#habitGroups .habit-clock[data-start]').forEach(el=>{
+    const ms = Date.now()-new Date(el.dataset.start).getTime();
+    el.innerHTML = clockHtml(ms);
+    const bestEl = el.parentNode.querySelector('.habit-best');
+    if(bestEl) bestEl.textContent = fmtDurationShort(Math.max(Number(bestEl.dataset.best)||0, ms));
+  });
+}, 1000);
+
+function toLocalInputValue(d){
+  const p = n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());
+}
+const timerOv = document.getElementById('timerOverlay');
+let timerHabit = null;
+function openTimerModal(habit){
+  timerHabit = habit;
+  const editing = !!habit.timerStart;
+  document.getElementById('timerModalTitle').textContent = editing ? 'Cambiar inicio · '+habit.name : 'Iniciar cronómetro · '+habit.name;
+  document.getElementById('timerSave').textContent = editing ? 'Guardar' : 'Iniciar';
+  const input = document.getElementById('timerStartInput');
+  input.value = toLocalInputValue(editing ? new Date(habit.timerStart) : new Date());
+  input.max = toLocalInputValue(new Date());
+  document.getElementById('timerErr').textContent = '';
+  timerOv.classList.add('open');
+}
+async function startHabitTimer(habit, date){
+  habit.timerStart = date.toISOString();
+  timerOv.classList.remove('open');
+  await saveRemote(); renderHabits();
+}
+document.getElementById('timerSave').addEventListener('click', ()=>{
+  const val = document.getElementById('timerStartInput').value;
+  const d = val ? new Date(val) : null;
+  const errEl = document.getElementById('timerErr');
+  if(!d || isNaN(d)){ errEl.textContent = 'Elige una fecha y hora.'; return; }
+  if(d.getTime() > Date.now()+60000){ errEl.textContent = 'La fecha no puede ser en el futuro.'; return; }
+  startHabitTimer(timerHabit, d.getTime()>Date.now() ? new Date() : d);
+});
+document.getElementById('timerNow').addEventListener('click', ()=>startHabitTimer(timerHabit, new Date()));
+document.getElementById('timerCancel').addEventListener('click', ()=>timerOv.classList.remove('open'));
+timerOv.addEventListener('click', e=>{ if(e.target===timerOv) timerOv.classList.remove('open'); });
+
+async function relapseHabit(habit){
+  const ms = Date.now()-new Date(habit.timerStart).getTime();
+  const ok = await showConfirm('¿Recaíste en "'+habit.name+'"? Llevabas '+fmtDurationShort(ms)+' sin fallar. El cronómetro vuelve a empezar desde cero.', {danger:true, okText:'Sí, recaí'});
+  if(!ok) return;
+  const now = new Date();
+  habit.bestRunMs = Math.max(habit.bestRunMs||0, ms);
+  habit.relapses = (habit.relapses||[]).concat({ start:habit.timerStart, end:now.toISOString() }).slice(-100);
+  habit.history = habit.history || {};
+  habit.history[todayLocal()] = true;
+  habit.timerStart = now.toISOString();
+  await saveRemote(); renderHabits();
+  showToast('Cronómetro reiniciado', 'Llegaste a '+fmtDurationShort(ms)+'. Tu mejor marca: '+fmtDurationShort(habit.bestRunMs)+'. ¡Vuelve a intentarlo!', 'clock');
+}
+async function stopHabitTimer(habit){
+  const ok = await showConfirm('¿Detener el cronómetro de "'+habit.name+'"? Tu mejor marca se conserva.', {okText:'Detener'});
+  if(!ok) return;
+  habit.bestRunMs = habitBestRun(habit);
+  delete habit.timerStart;
+  await saveRemote(); renderHabits();
 }
 
 function renderHabits(){
@@ -1660,6 +1806,8 @@ document.getElementById('habitGroups').addEventListener('click', async (e)=>{
     if(habit.history[today]) delete habit.history[today]; else habit.history[today] = true;
     await saveRemote(); renderHabits();
   }
+  if(e.target.closest('.btn-start-timer')) openTimerModal(habit);
+  if(e.target.closest('.btn-relapse')) relapseHabit(habit);
   if(e.target.closest('.btn-habit-menu')){
     openHabitMenu(e.target.closest('.btn-habit-menu'), habit);
   }
@@ -1739,6 +1887,9 @@ function openHabitMenu(btn, habit){
   habitMenuEl.style.left = Math.max(8, r.right-170)+'px';
   document.getElementById('habitMenuPriorityLabel').textContent = habit.priority ? 'Quitar prioridad' : 'Marcar prioritario';
   habitMenuEl.querySelector('[data-act="priority"]').classList.toggle('on', !!habit.priority);
+  const timerOn = habit.kind==='bad' && !!habit.timerStart;
+  document.getElementById('habitMenuTimerEdit').hidden = !timerOn;
+  document.getElementById('habitMenuTimerStop').hidden = !timerOn;
   habitMenuEl.hidden = false;
 }
 function closeHabitMenu(){ habitMenuEl.hidden = true; habitMenuTarget = null; }
@@ -1754,6 +1905,8 @@ habitMenuEl.addEventListener('click', async (e)=>{
   if(act==='priority'){ habit.priority = !habit.priority; await saveRemote(); renderHabits(); }
   if(act==='history'){ openHabitHistory(habit); }
   if(act==='edit'){ openHabitModal(habit); }
+  if(act==='timer-edit'){ openTimerModal(habit); }
+  if(act==='timer-stop'){ stopHabitTimer(habit); }
   if(act==='delete'){
     const ok = await showConfirm('¿Eliminar "'+habit.name+'"? Se pierde su historial y racha.', {danger:true, okText:'Eliminar'});
     if(!ok) return;
