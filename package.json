@@ -2,7 +2,7 @@
   "name": "horario-enlaces",
   "version": "2.0.0",
   "private": true,
-  "description": "Croni: horario semanal con enlaces, cuentas de usuario y horarios propios por persona.",
+  "description": "Croni: horario semanal con enlaces, hábitos con cronómetro, cuidado personal, dieta y metas, con cuenta propia por persona.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

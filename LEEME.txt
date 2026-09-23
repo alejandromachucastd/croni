@@ -40,6 +40,21 @@ FUNCIONES NUEVAS
   usuarios, ahora puede eliminar cuentas y generarles una contraseña
   temporal nueva.
 
+NUEVO: CRONÓMETRO, CUIDADO PERSONAL Y DIETA
+---------------------------------------------
+- Hábitos a evitar con cronómetro: en un hábito "Quiero evitarlo" dale
+  "Iniciar" (desde ahora o desde una fecha/hora pasada) y ve en vivo
+  cuántos días, horas, minutos y segundos llevas sin fallar. "Recaí"
+  guarda tu mejor marca y reinicia el conteo. En el menú ⋮ puedes
+  cambiar la hora de inicio o detenerlo.
+- Cuidado personal: rutina de skincare de mañana y de noche para
+  palomear cada día, con los últimos 7 días y tu racha.
+- Dieta: comidas del día (cada una con su plan de qué comer), vasos de
+  agua con meta ajustable y reglas del día (sin refresco, etc.), con
+  racha de días cumplidos.
+- En ambas secciones, "Editar" te deja agregar, renombrar y borrar.
+- El menú lateral se queda fijo; solo se desplaza el contenido.
+
 ACTIVAR EL ENVÍO DE CORREO PARA "OLVIDÉ MI CONTRASEÑA" (opcional)
 --------------------------------------------------------------------
 Sin esto, "olvidé mi contraseña" sigue funcionando: el enlace para

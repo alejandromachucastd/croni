@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Croni · Tu horario con enlaces</title>
+<title>Croni · Horario, hábitos y rutinas</title>
+<meta name="description" content="Arma tu horario semanal y dale seguimiento a tus hábitos, tu cuidado personal, tu dieta y tus metas.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#1c1e22">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&display=swap" rel="stylesheet">
@@ -99,7 +105,8 @@
   /* ===== estructura app ===== */
   #appShell{display:flex;min-height:100vh}
   .sidebar{width:210px;flex-shrink:0;background:var(--sidebar-bg);color:var(--sidebar-text);
-    display:flex;flex-direction:column;padding:16px 10px}
+    display:flex;flex-direction:column;padding:16px 10px;
+    position:sticky;top:0;height:100vh;height:100dvh;overflow-y:auto;scrollbar-width:thin}
   .brand{display:flex;align-items:center;gap:9px;padding:6px 10px 12px;color:#fff;font-weight:800;font-size:1.05rem}
   .brand-word{font-family:'Poppins',"Segoe UI",sans-serif;font-weight:800;font-size:1.25rem;letter-spacing:-.02em}
   .brand-word .c1{color:#fff}
@@ -321,6 +328,63 @@
   .habit-toggle.timer-start:hover{filter:brightness(1.08)}
   .habit-toggle.timer-relapse{border-color:#7a2020;color:#b33a3a}
   .habit-toggle.timer-relapse:hover{background:#7a2020;color:#fff}
+  /* rutinas: cuidado personal y dieta */
+  .routine-blocks{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;align-items:start}
+  .routine-blocks .routine-block{margin-bottom:0}
+  .routine-panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px 18px}
+  .routine-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .routine-head .habit-icon-badge{flex-shrink:0}
+  .routine-head h3{margin:0;font-size:1rem}
+  .routine-head .routine-sub{font-size:.72rem;color:var(--muted)}
+  .routine-edit{margin-left:auto}
+  .routine-edit.on{border-color:var(--accent);color:var(--accent)}
+  .routine-week{display:flex;gap:6px;margin:0 0 14px}
+  .routine-week .wd{flex:1;text-align:center;font-size:.62rem;color:var(--muted)}
+  .routine-week .dot{display:block;height:8px;border-radius:99px;background:var(--panel-2);border:1px solid var(--border);margin-bottom:4px}
+  .routine-week .dot.half{background:linear-gradient(90deg,#1f6b3a 50%,var(--panel-2) 50%);border-color:#1f6b3a}
+  .routine-week .dot.full{background:#1f6b3a;border-color:#1f6b3a}
+  .routine-week .wd.today{color:var(--text);font-weight:700}
+  .routine-block{margin-bottom:14px}
+  .routine-block:last-child{margin-bottom:0}
+  .routine-block-head{display:flex;align-items:center;gap:6px;font-size:.74rem;font-weight:700;text-transform:uppercase;
+    letter-spacing:.04em;color:var(--muted);margin-bottom:6px}
+  .routine-block-head .ic{width:14px;height:14px}
+  .routine-block-head .count{margin-left:auto;text-transform:none;letter-spacing:0;font-weight:600}
+  .routine-block-head .count.done{color:#1f6b3a}
+  :root[data-theme="dark"] .routine-block-head .count.done{color:#4ade80}
+  .routine-bar{height:4px;border-radius:99px;background:var(--panel-2);overflow:hidden;margin-bottom:8px}
+  .routine-bar span{display:block;height:100%;background:#1f6b3a;transition:width .25s}
+  .check-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;
+    background:var(--panel-2);margin-bottom:6px;cursor:pointer;user-select:none;transition:border-color .15s,background .15s}
+  .check-row:hover{border-color:var(--accent)}
+  .check-row .box{width:20px;height:20px;border-radius:6px;border:2px solid var(--muted);flex-shrink:0;display:flex;
+    align-items:center;justify-content:center;color:#fff;transition:background .15s,border-color .15s}
+  .check-row .box .ic{width:13px;height:13px;opacity:0}
+  .check-row.done .box{background:#1f6b3a;border-color:#1f6b3a}
+  .check-row.done .box .ic{opacity:1}
+  .check-row.done .row-name{text-decoration:line-through;color:var(--muted)}
+  .check-row .row-text{flex:1;min-width:0}
+  .check-row .row-name{font-size:.84rem;font-weight:600;overflow-wrap:anywhere}
+  .check-row .row-sub{font-size:.68rem;color:var(--muted)}
+  .check-row .row-sub{display:block;margin-top:1px}
+  .check-row .row-sub.muted{font-style:italic;opacity:.8}
+  .check-row .row-del,.check-row .row-edit{background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;border-radius:6px;display:flex}
+  .check-row .row-edit:hover{color:var(--accent);background:var(--panel)}
+  .check-row .row-del:hover{color:#e05a5a;background:rgba(224,90,90,.1)}
+  .routine-add{display:flex;gap:6px;margin-top:4px}
+  .routine-add input,.routine-add select{background:var(--panel-2);color:var(--text);border:1px solid var(--border);
+    border-radius:9px;padding:7px 10px;font-size:.8rem;min-width:0}
+  .routine-add input{flex:1}
+  .routine-add input:focus,.routine-add select:focus{outline:none;border-color:var(--accent)}
+  .water-row{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
+  .water-cup{width:38px;height:44px;border-radius:9px 9px 12px 12px;border:1px solid var(--border);background:var(--panel-2);
+    color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s,border-color .15s}
+  .water-cup .ic{width:18px;height:18px}
+  .water-cup:hover{border-color:#2f7fb8}
+  .water-cup.on{background:#2f7fb8;border-color:#2f7fb8;color:#fff}
+  .water-cup.on .ic{fill:currentColor}
+  .water-actions{display:flex;gap:6px;flex-wrap:wrap}
+  .routine-empty{font-size:.78rem;color:var(--muted);margin:0 0 6px}
   .habit-menu-btn{background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:8px;
     width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
     font-weight:800;letter-spacing:1px;transition:.12s}
@@ -511,11 +575,11 @@
 
   @media (max-width:820px){
     #appShell{flex-direction:column}
-    .sidebar{width:100%;padding:10px;position:relative;z-index:40}
+    .sidebar{width:100%;padding:10px;position:sticky;top:0;height:auto;overflow:visible;z-index:40}
     .hamburger-btn{display:flex}
     .who-side{margin:10px 0 0}
     .sidebar nav,.sidebar-bottom,.sidebar .app-credit{display:none}
-    .sidebar.menu-open{position:fixed;inset:0;height:100vh;z-index:100;overflow-y:auto;padding:14px 18px}
+    .sidebar.menu-open{position:fixed;inset:0;height:100vh;height:100dvh;z-index:100;overflow-y:auto;padding:14px 18px}
     .sidebar.menu-open nav,.sidebar.menu-open .sidebar-bottom{display:flex;flex-direction:column;width:100%}
     .sidebar.menu-open .app-credit{display:block}
     .sidebar.menu-open nav{margin-top:18px;gap:6px}
@@ -645,6 +709,8 @@
       <button class="nav-item" data-view="actividades"><svg class="ic" viewBox="0 0 24 24"><use href="#i-grid"/></svg> Actividades</button>
       <button class="nav-item" data-view="estadisticas"><svg class="ic" viewBox="0 0 24 24"><use href="#i-chart"/></svg> Estadísticas</button>
       <button class="nav-item" data-view="habitos"><svg class="ic" viewBox="0 0 24 24"><use href="#i-check"/></svg> Hábitos</button>
+      <button class="nav-item" data-view="cuidado"><svg class="ic" viewBox="0 0 24 24"><use href="#i-sparkle"/></svg> Cuidado personal</button>
+      <button class="nav-item" data-view="dieta"><svg class="ic" viewBox="0 0 24 24"><use href="#i-utensils"/></svg> Dieta</button>
       <button class="nav-item" data-view="metas"><svg class="ic" viewBox="0 0 24 24"><use href="#i-target"/></svg> Metas</button>
       <button class="nav-item" data-view="ajustes"><svg class="ic" viewBox="0 0 24 24"><use href="#i-sliders"/></svg> Ajustes</button>
       <a class="nav-item" id="linkAdmin" href="/admin.html" hidden><svg class="ic" viewBox="0 0 24 24"><use href="#i-shield"/></svg> Panel admin</a>
@@ -795,6 +861,18 @@
       </div>
 
       <div id="habitGroups"></div>
+    </section>
+
+    <section class="view routine-view" id="view-cuidado">
+      <h2 class="view-title">Cuidado personal</h2>
+      <p class="view-sub">Tu rutina de skincare de mañana y de noche, para palomear cada día.</p>
+      <div class="routine-panel" id="skincarePanel"></div>
+    </section>
+
+    <section class="view routine-view" id="view-dieta">
+      <h2 class="view-title">Dieta</h2>
+      <p class="view-sub">Tus comidas del día, el agua y las reglas que quieres respetar.</p>
+      <div class="routine-panel" id="dietPanel"></div>
     </section>
 
     <section class="view" id="view-metas">
@@ -1115,6 +1193,7 @@
 <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
 <symbol id="i-undo" viewBox="0 0 24 24"><path d="M3 10h11a5 5 0 0 1 0 10h-3"/><polyline points="7 4 3 10 7 16"/></symbol>
 <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></symbol>
 <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><polyline points="12 9 12 13 15 15"/><line x1="10" y1="2" x2="14" y2="2"/></symbol>
 <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="5.5" y1="18.5" x2="18.5" y2="5.5"/></symbol>
 <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
@@ -1271,10 +1350,11 @@ function showPrompt(message, defaultValue, opts){
 
 /* ============ TOUR DE BIENVENIDA ============ */
 const ONBOARD_STEPS = [
-  { icon:'calendar', title:'¡Bienvenido a Croni!', text:'Arma tu horario semanal, dale seguimiento a tus hábitos y metas, y mira en qué se te va el tiempo. Todo en un solo lugar y guardado en tu cuenta.' },
+  { icon:'calendar', title:'¡Bienvenido a Croni!', text:'Arma tu horario semanal, dale seguimiento a tus hábitos, tu cuidado personal, tu dieta y tus metas, y mira en qué se te va el tiempo. Todo en un solo lugar y guardado en tu cuenta.' },
   { icon:'grid', title:'Tu horario', text:'Toca cualquier celda para asignarle una actividad. Cada semana se guarda por separado, y puedes copiar el horario de un día a otro con el botón "Copiar día".' },
   { icon:'tag', title:'Actividades y categorías', text:'Cada actividad pertenece a una categoría, y la categoría define su color. Puedes agregar tareas dentro de cada actividad para no perder el detalle.' },
-  { icon:'check', title:'Hábitos', text:'Registra cosas que quieres cumplir cada día (o evitar). Marca tus prioritarios con la estrella ⭐ y sigue tu racha día a día.' },
+  { icon:'check', title:'Hábitos', text:'Registra cosas que quieres cumplir cada día (o evitar). En los que quieres evitar, dale "Iniciar" y un cronómetro te dice cuántos días y horas llevas sin fallar. Marca tus prioritarios con la estrella ⭐.' },
+  { icon:'sparkle', title:'Cuidado personal y dieta', text:'Palomea tu rutina de skincare de mañana y de noche, y en Dieta tus comidas del día, los vasos de agua y tus reglas (sin refresco, sin azúcar…). Con "Editar" la ajustas a ti.' },
   { icon:'target', title:'Metas y estadísticas', text:'Ponte metas con fecha límite, y revisa en Estadísticas cuánto tiempo le dedicas a cada cosa, con resúmenes por semana y por mes.' }
 ];
 let onboardStep = 0;
@@ -1446,6 +1526,7 @@ async function loadSchedule(){
   const resp = await api('/api/schedule?week='+encodeURIComponent(currentWeekId));
   data = { acts: resp.acts||{}, link: resp.link||{}, categories: resp.categories||[], cell: resp.cell||{},
     habits: resp.habits||[], goals: resp.goals||[], habitCategories: resp.habitCategories||[], habitsBestStreak: resp.habitsBestStreak||0,
+    routines: resp.routines||null,
     onboarded: !!resp.onboarded };
   normalizeCategories();
   currentStreak = resp.streak || 0;
@@ -1513,6 +1594,7 @@ document.getElementById('mainNav').addEventListener('click', (e)=>{
   if(btn.dataset.view==='estadisticas') renderStatsPage();
   if(btn.dataset.view==='habitos') renderHabits();
   if(btn.dataset.view==='metas') renderGoals();
+  if(btn.dataset.view==='cuidado' || btn.dataset.view==='dieta') renderRoutines();
   closeMobileMenu();
 });
 function setMobileMenuIcon(open){
@@ -1628,6 +1710,208 @@ function habitCard(h){
     '<button class="habit-menu-btn btn-habit-menu">⋮</button>'+
     '</div>';
 }
+
+/* ============ RUTINAS: CUIDADO PERSONAL Y DIETA ============ */
+function rid(){ return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function ensureRoutines(){
+  const r = data.routines = (data.routines && typeof data.routines==='object') ? data.routines : {};
+  delete r.cleaning;
+  const item = name=>({ id:rid(), name });
+  if(!r.skincare){
+    r.skincare = {
+      am: ['Limpiador','Sérum (vitamina C)','Hidratante','Protector solar'].map(item),
+      pm: ['Desmaquillar / limpiador','Tónico','Tratamiento o sérum','Hidratante'].map(item),
+      log: {}
+    };
+  }
+  if(!r.diet){
+    r.diet = {
+      meals: [['Desayuno',''],['Colación',''],['Comida',''],['Colación',''],['Cena','']].map(([name,plan])=>({ id:rid(), name, plan })),
+      rules: ['Sin refresco','Sin azúcar añadida','Sin comida rápida'].map(item),
+      waterGoal: 8,
+      log: {}
+    };
+  }
+  return r;
+}
+const SKIN_BLOCKS = [ { id:'am', label:'Mañana', icon:'sun' }, { id:'pm', label:'Noche', icon:'moon' } ];
+let routinesEditing = { skin:false, diet:false };
+
+function skinStatus(r, dateStr){
+  const log = r.skincare.log[dateStr] || {};
+  return SKIN_BLOCKS.map(b=>{
+    const steps = r.skincare[b.id] || [];
+    const done = steps.filter(st=>log[st.id]).length;
+    return { total:steps.length, done, complete: steps.length>0 && done===steps.length };
+  });
+}
+function skinDayLevel(r, d){
+  const st = skinStatus(r,d).filter(x=>x.total);
+  const n = st.filter(x=>x.complete).length;
+  return st.length && n===st.length ? 2 : n ? 1 : 0;
+}
+function dietStatus(r, d){
+  const diet = r.diet, log = diet.log[d] || {};
+  const meals = diet.meals.filter(m=>(log.meals||{})[m.id]).length;
+  const rules = diet.rules.filter(x=>(log.rules||{})[x.id]).length;
+  const water = log.water || 0;
+  const parts = [meals===diet.meals.length, rules===diet.rules.length, water>=diet.waterGoal];
+  return { meals, rules, water, complete: parts.every(Boolean), any: meals||rules||water };
+}
+function dietDayLevel(r, d){ const st = dietStatus(r,d); return st.complete ? 2 : st.any ? 1 : 0; }
+function routineStreak(levelFn){
+  const today = todayLocal();
+  let cursor = levelFn(today)===2 ? today : dateMinus(today,1), n=0;
+  while(levelFn(cursor)===2 && n<1000){ n++; cursor = dateMinus(cursor,1); }
+  return n;
+}
+function weekStrip(levelFn){
+  const today = todayLocal(), letters = ['D','L','M','M','J','V','S'];
+  let html = '';
+  for(let i=6;i>=0;i--){
+    const d = dateMinus(today,i), lv = levelFn(d);
+    html += '<div class="wd'+(i===0?' today':'')+'" title="'+d+'"><span class="dot '+(lv===2?'full':lv===1?'half':'')+'"></span>'+letters[new Date(d+'T00:00:00').getDay()]+'</div>';
+  }
+  return '<div class="routine-week">'+html+'</div>';
+}
+function checkRowHtml(o){
+  const editing = routinesEditing[o.panel];
+  return '<div class="check-row'+(o.done?' done':'')+'" data-kind="'+o.kind+'" data-id="'+esc(o.id)+'"'+(o.block?' data-block="'+o.block+'"':'')+'>'+
+    '<span class="box"><svg class="ic" viewBox="0 0 24 24"><use href="#i-check"/></svg></span>'+
+    '<span class="row-text"><span class="row-name">'+esc(o.name)+'</span>'+
+    (o.sub ? '<span class="row-sub'+(o.subMuted?' muted':'')+'">'+esc(o.sub)+'</span>' : '')+'</span>'+
+    (editing ? '<button class="row-edit" title="Editar"><svg class="ic" viewBox="0 0 24 24"><use href="#i-edit"/></svg></button>'+
+               '<button class="row-del" title="Eliminar"><svg class="ic" viewBox="0 0 24 24"><use href="#i-trash"/></svg></button>' : '')+
+    '</div>';
+}
+function routineHead(panel, icon, color, title, sub){
+  const on = routinesEditing[panel];
+  return '<div class="routine-head"><span class="habit-icon-badge" style="background:'+color+'"><svg class="ic" viewBox="0 0 24 24"><use href="#i-'+icon+'"/></svg></span>'+
+    '<div><h3>'+title+'</h3><div class="routine-sub">'+sub+'</div></div>'+
+    '<button class="icon-btn routine-edit'+(on?' on':'')+'" data-panel="'+panel+'"><svg class="ic" viewBox="0 0 24 24"><use href="#i-'+(on?'check':'edit')+'"/></svg> '+(on?'Listo':'Editar')+'</button></div>';
+}
+function blockHead(icon, label, done, total, extra){
+  return '<div class="routine-block-head"><svg class="ic" viewBox="0 0 24 24"><use href="#i-'+icon+'"/></svg>'+label+
+    '<span class="count'+(total && done>=total?' done':'')+'">'+done+'/'+total+(extra||'')+'</span></div>'+
+    '<div class="routine-bar"><span style="width:'+(total?Math.min(100,Math.round(done/total*100)):0)+'%"></span></div>';
+}
+function addForm(panel, kind, block, placeholder){
+  if(!routinesEditing[panel]) return '';
+  return '<form class="routine-add" data-kind="'+kind+'"'+(block?' data-block="'+block+'"':'')+'><input type="text" placeholder="'+placeholder+'" maxlength="80">'+
+    '<button class="icon-btn" type="submit"><svg class="ic" viewBox="0 0 24 24"><use href="#i-plus"/></svg></button></form>';
+}
+
+function renderSkincare(r, today){
+  const streak = routineStreak(d=>skinDayLevel(r,d));
+  const status = skinStatus(r, today);
+  const log = r.skincare.log[today] || {};
+  let html = routineHead('skin', 'sparkle', '#b0578d', 'Skincare', streak ? streak+(streak===1?' día':' días')+' con la rutina completa' : 'Completa mañana y noche para empezar tu racha')+
+    weekStrip(d=>skinDayLevel(r,d))+'<div class="routine-blocks">';
+  SKIN_BLOCKS.forEach((b,i)=>{
+    const steps = r.skincare[b.id] || [];
+    html += '<div class="routine-block">'+blockHead(b.icon, b.label, status[i].done, status[i].total)+
+      (steps.length ? steps.map(x=>checkRowHtml({ panel:'skin', kind:'skin', block:b.id, id:x.id, name:x.name, done:!!log[x.id] })).join('') : '<p class="routine-empty">Sin pasos todavía.</p>')+
+      addForm('skin','skin',b.id,'Nuevo paso de '+b.label.toLowerCase()+'…')+'</div>';
+  });
+  document.getElementById('skincarePanel').innerHTML = html+'</div>';
+}
+
+function renderDiet(r, today){
+  const diet = r.diet, log = diet.log[today] || {};
+  const st = dietStatus(r, today);
+  const streak = routineStreak(d=>dietDayLevel(r,d));
+  let html = routineHead('diet', 'utensils', '#3f8a4f', 'Dieta', streak ? streak+(streak===1?' día':' días')+' cumpliendo la dieta' : 'Cumple comidas, agua y reglas para empezar tu racha')+
+    weekStrip(d=>dietDayLevel(r,d))+'<div class="routine-blocks">';
+  html += '<div class="routine-block">'+blockHead('utensils','Comidas de hoy', st.meals, diet.meals.length)+
+    (diet.meals.length ? diet.meals.map(m=>checkRowHtml({ panel:'diet', kind:'meal', id:m.id, name:m.name, done:!!(log.meals||{})[m.id],
+      sub: m.plan || (routinesEditing.diet ? 'Toca ✎ para escribir qué vas a comer' : ''), subMuted: !m.plan })).join('') : '<p class="routine-empty">Sin comidas todavía.</p>')+
+    addForm('diet','meal','','Nueva comida (ej. Pre-entreno)…')+'</div>';
+  const cups = Array.from({length:Math.max(diet.waterGoal, st.water)}, (_,i)=>
+    '<button class="water-cup'+(i<st.water?' on':'')+'" data-cup="'+(i+1)+'" title="'+(i+1)+(i?' vasos':' vaso')+'"><svg class="ic" viewBox="0 0 24 24"><use href="#i-droplet"/></svg></button>').join('');
+  html += '<div class="routine-block"><div class="routine-block-wrap">'+blockHead('droplet','Agua', st.water, diet.waterGoal, ' vasos')+
+    '<div class="water-row">'+cups+'</div>'+
+    '<div class="water-actions"><button class="icon-btn water-minus">−</button><button class="icon-btn water-plus"><svg class="ic" viewBox="0 0 24 24"><use href="#i-plus"/></svg> Vaso</button>'+
+    (routinesEditing.diet ? '<button class="icon-btn water-goal">Meta: '+diet.waterGoal+' vasos</button>' : '')+'</div></div>';
+  html += '<div style="margin-top:16px">'+blockHead('ban','Reglas del día', st.rules, diet.rules.length)+
+    (diet.rules.length ? diet.rules.map(x=>checkRowHtml({ panel:'diet', kind:'rule', id:x.id, name:x.name, done:!!(log.rules||{})[x.id] })).join('') : '<p class="routine-empty">Sin reglas todavía.</p>')+
+    addForm('diet','rule','','Nueva regla (ej. Sin pan dulce)…')+'</div></div>';
+  document.getElementById('dietPanel').innerHTML = html+'</div>';
+}
+
+function renderRoutines(){
+  const r = ensureRoutines(), today = todayLocal();
+  renderSkincare(r, today);
+  renderDiet(r, today);
+}
+function pruneLog(log){
+  const cutoff = dateMinus(todayLocal(), 120);
+  Object.keys(log).forEach(d=>{ if(d<cutoff) delete log[d]; });
+}
+function findRoutineList(r, kind, block){
+  if(kind==='skin') return { list:r.skincare[block], set:v=>{ r.skincare[block]=v; } };
+  if(kind==='meal') return { list:r.diet.meals, set:v=>{ r.diet.meals=v; } };
+  return { list:r.diet.rules, set:v=>{ r.diet.rules=v; } };
+}
+document.querySelectorAll('.routine-view').forEach(v=>v.addEventListener('click', async e=>{
+  const editBtn = e.target.closest('.routine-edit');
+  if(editBtn){ routinesEditing[editBtn.dataset.panel] = !routinesEditing[editBtn.dataset.panel]; renderRoutines(); return; }
+  const r = ensureRoutines(), today = todayLocal();
+  // agua
+  if(e.target.closest('.water-plus, .water-minus, .water-cup, .water-goal')){
+    const dlog = r.diet.log[today] = r.diet.log[today] || {};
+    const cur = dlog.water || 0;
+    if(e.target.closest('.water-plus')) dlog.water = Math.min(40, cur+1);
+    else if(e.target.closest('.water-minus')) dlog.water = Math.max(0, cur-1);
+    else if(e.target.closest('.water-cup')){ const n = Number(e.target.closest('.water-cup').dataset.cup); dlog.water = (n===cur) ? n-1 : n; }
+    else {
+      const val = await showPrompt('¿Cuántos vasos de agua quieres tomar al día?', String(r.diet.waterGoal), { title:'Meta de agua' });
+      const n = parseInt(val,10); if(!n || n<1 || n>40) return;
+      r.diet.waterGoal = n;
+    }
+    pruneLog(r.diet.log);
+    renderRoutines(); await saveRemote(); return;
+  }
+  const row = e.target.closest('.check-row'); if(!row) return;
+  const { kind, id, block } = row.dataset;
+  const ref = findRoutineList(r, kind, block);
+  const item = ref.list.find(x=>x.id===id); if(!item) return;
+  if(e.target.closest('.row-del')){
+    ref.set(ref.list.filter(x=>x.id!==id));
+  } else if(e.target.closest('.row-edit')){
+    const name = await showPrompt('Nombre', item.name, { title:'Editar' });
+    if(name===null) return;
+    if(name.trim()) item.name = name.trim().slice(0,80);
+    if(kind==='meal'){
+      const plan = await showPrompt('¿Qué vas a comer en "'+item.name+'"? (déjalo vacío si no quieres plan)', item.plan||'', { title:'Plan de comida', placeholder:'Ej. 2 huevos, avena con fruta' });
+      if(plan!==null) item.plan = plan.trim().slice(0,160);
+    }
+  } else if(kind==='skin'){
+    const log = r.skincare.log[today] = r.skincare.log[today] || {};
+    if(log[id]) delete log[id]; else log[id] = true;
+    pruneLog(r.skincare.log);
+  } else {
+    const dlog = r.diet.log[today] = r.diet.log[today] || {};
+    const key = kind==='meal' ? 'meals' : 'rules';
+    const m = dlog[key] = dlog[key] || {};
+    if(m[id]) delete m[id]; else m[id] = true;
+    pruneLog(r.diet.log);
+  }
+  renderRoutines();
+  await saveRemote();
+}));
+document.querySelectorAll('.routine-view').forEach(v=>v.addEventListener('submit', async e=>{
+  const form = e.target.closest('.routine-add'); if(!form) return;
+  e.preventDefault();
+  const name = form.querySelector('input').value.trim(); if(!name) return;
+  const r = ensureRoutines();
+  const { kind, block } = form.dataset;
+  const ref = findRoutineList(r, kind, block);
+  ref.list.push(kind==='meal' ? { id:rid(), name, plan:'' } : { id:rid(), name });
+  renderRoutines();
+  const again = document.querySelector('.routine-add[data-kind="'+kind+'"]'+(block?'[data-block="'+block+'"]':'')+' input');
+  if(again) again.focus();
+  await saveRemote();
+}));
 
 /* ---- cronómetro "sin fallar" (hábitos a evitar) ---- */
 function splitDuration(ms){
@@ -2628,7 +2912,8 @@ document.getElementById('importFile').addEventListener('change', async (e)=>{
       throw new Error('El archivo no tiene el formato esperado.');
     snapshotForUndo();
     data = { acts:parsed.acts||{}, link:parsed.link||{}, categories:parsed.categories||data.categories||[], cell:parsed.cell||{},
-      habits:data.habits||[], goals:data.goals||[], habitCategories:data.habitCategories||[], habitsBestStreak:data.habitsBestStreak||0 };
+      habits:data.habits||[], goals:data.goals||[], habitCategories:data.habitCategories||[], habitsBestStreak:data.habitsBestStreak||0,
+      routines:data.routines||null };
     normalizeCategories();
     await saveRemote(); render();
   }catch(err){ await showAlert('No se pudo importar: '+err.message, 'Error'); }
