@@ -221,7 +221,7 @@
 
   body.list-mode .grid{display:none}
   body.list-mode .days{display:flex}
-  @media (max-width:900px){ .grid{display:none} .days{display:flex} .toolbar #viewToggle{display:none}
+  @media (max-width:1023px){ .grid{display:none} .days{display:flex} .toolbar #viewToggle{display:none}
     .toolbar .toolbar-sep{display:none}
     .toolbar #btnOpenCopyDay,.toolbar #btnUndo{flex:1 1 auto;justify-content:center} }
 
@@ -290,6 +290,10 @@
     cursor:pointer;user-select:none}
   .group-chevron{margin-left:auto;transition:transform .15s;color:var(--muted);transform:rotate(90deg)}
   .habit-group.collapsed .group-chevron{transform:rotate(0deg)}
+  .group-toggle{display:flex;align-items:center;gap:8px;flex:1 1 auto;min-width:0;min-height:44px;background:none;border:none;padding:0;
+    color:inherit;font:inherit;text-align:left;cursor:pointer;border-radius:8px}
+  .habit-group-head .btn-manage-cat{margin-left:4px}
+  .habit-group-head button.group-toggle{min-height:44px;font-size:.875rem}
   .habit-group.collapsed .card-list{display:none}
   .habit-group-icon{width:24px;height:24px;border-radius:7px;color:#fff;display:flex;align-items:center;justify-content:center;
     flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.15)}
@@ -432,28 +436,41 @@
   .grid .head.is-today{flex-direction:column;gap:0;line-height:1.1}
   .grid .head.is-today::after{content:"Hoy";display:block;font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text);opacity:.8}
   /* escritorio mediano: nombres cortos para que las pestañas quepan en una sola fila */
-  @media (min-width:901px) and (max-width:1280px){
+  @media (min-width:1024px) and (max-width:1280px){
     #dayPills button .pl{display:none}
     #dayPills button .ps{display:inline}
     #dayPills button[data-dia="todos"] .pl{display:inline}
     #dayPills button[data-dia="todos"] .ps{display:none}
     #dayPills{flex-wrap:nowrap}
   }
-  @media (min-width:901px){ #view-horario .toolbar{flex-wrap:nowrap} #dayPills{flex:1 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}
+  @media (min-width:1024px) and (max-width:1199px){
+    /* poco ancho: los números del día se ocultan para que quepan las 7 pestañas (la fecha se ve en el encabezado de la tabla) */
+    #dayPills button .pd{display:none}
+    #view-horario .toolbar .view-toggle{padding:0 10px}
+  }
+  @media (min-width:1024px){ #view-horario .toolbar{flex-wrap:nowrap} #dayPills{flex:1 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}
     #dayPills button,#view-horario .toolbar .view-toggle{white-space:nowrap;flex:0 0 auto} }
-  @media (min-width:901px) and (max-width:1280px){
+  @media (min-width:1024px) and (max-width:1280px){
     /* columnas angostas: menos relleno y sin partir palabras a la mitad */
-    .grid .cell{padding:4px 5px;font-size:.78rem}
+    .grid .cell{padding:4px 5px;font-size:.875rem}
     #view-horario .grid .cell-lbl span{overflow-wrap:normal;word-break:normal}
+    body #view-horario .grid{grid-template-columns:58px repeat(7,minmax(0,1fr));gap:3px;padding:6px}
+    .grid .cell{letter-spacing:-.02em}
+    body #view-horario .grid .cell{padding:4px 3px}
+    /* horas en dos renglones ("10:00-" / "11:00") para que la columna sea angosta sin encimarse */
+    body #view-horario .grid .hora{white-space:normal;line-height:1.15;text-align:center;padding:0 2px}
     #dayPills button[data-dia="todos"] .pl{display:none !important}
     #dayPills button[data-dia="todos"] .ps{display:inline !important}
+    #dayPills button{padding:0 10px}
+    #dayPills{gap:2px}
   }
-  @media (max-width:900px){
+  @media (max-width:1023px){
     #view-horario .toolbar{padding:6px}
     #dayPills{gap:6px;padding:2px 4px;scroll-padding:0 24px;
       -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 14px),transparent 100%);
               mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 14px),transparent 100%)}
     #dayPills button{min-height:44px;padding:0 14px;font-size:.9rem;white-space:nowrap}
+    @media (min-width:821px){ #dayPills button{padding:0 11px} #dayPills{gap:4px} }
     #dayPills button .pl{display:none}
     #dayPills button .ps{display:inline}
   }
@@ -732,7 +749,7 @@
   .stat-label2{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
   .stat-value2{font-size:1.15rem;font-weight:800}
   .charts-grid{display:grid;grid-template-columns:1fr;gap:16px}
-  @media (min-width:1000px){ .charts-grid{grid-template-columns:1fr 1fr} }
+  @media (min-width:1024px){ .charts-grid{grid-template-columns:1fr 1fr} }
   .chart-block{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:0}
   .chart-block h3{margin:0 0 14px;font-size:.85rem}
   .chart-row{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
@@ -889,7 +906,7 @@
   }
 
   /* ===== responsive general (celular) ===== */
-  @media (max-width:900px){
+  @media (max-width:1023px){
     .day-pills{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
     .day-pills::-webkit-scrollbar{display:none}
     .day-pills button{flex:0 0 auto}
@@ -990,7 +1007,7 @@
   .grid .hora{border-color:transparent;background:transparent;font-size:.66rem;
     font-variant-numeric:tabular-nums;border-radius:8px}
   .grid .head.is-today{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--panel))}
-  @media (max-width:900px){
+  @media (max-width:1023px){
     /* en celular: la fila de días se queda pegada bajo la barra superior */
     #view-horario .toolbar{position:sticky;top:var(--appbar-height,0px);z-index:20;background:var(--panel);
       box-shadow:0 6px 14px color-mix(in srgb,var(--text) 8%,transparent);flex-wrap:nowrap;align-items:center}
@@ -1033,7 +1050,7 @@
   .slot.is-now .blk{outline:2px solid var(--accent);outline-offset:2px}
   .toolbar{padding:8px;border-radius:14px;gap:8px}
   .toolbar button{min-height:40px}
-  @media (max-width:900px){
+  @media (max-width:1023px){
     .day-pills{min-width:0;max-width:100%;flex:1 1 100%;gap:6px;padding:2px}
     .day-pills button{min-height:42px;padding:8px 14px;font-size:.8rem}
     .view button,.modal button{min-width:40px}
@@ -1063,8 +1080,17 @@
   .day-pills button{min-height:44px;font-size:.875rem}
   .grid .head{font-size:.875rem}
   .grid .hora{font-size:.75rem;white-space:nowrap}
-  .grid .cell{font-size:.8125rem}
-  .grid .cell .sub{font-size:.72rem}
+  .grid .cell{font-size:.875rem}
+  .grid .cell .sub{font-size:.75rem}
+  .grid .cell .badge{font-size:.75rem}
+  .grid .cell.is-now::after,.slot.is-now .blk::after{font-size:.75rem}
+  .day-pills button .today-tag{font-size:.75rem}
+  .grid .head.is-today::after{font-size:.75rem}
+  .now-banner .now-tag,.now-banner .now-time{font-size:.75rem}
+  /* en bloques de una sola franja, "Ahora" va debajo del nombre (no encima) */
+  .grid .cell.is-now[data-length="1"]{flex-direction:column;justify-content:center;gap:1px}
+  .grid .cell.is-now[data-length="1"]::after{position:static;line-height:1.15;padding:0 6px;order:2}
+  .grid .cell.is-now[data-length="1"] .cell-lbl span{-webkit-line-clamp:1}
   .slot .t{font-size:.8125rem;flex:0 0 96px;width:96px;min-width:96px;white-space:nowrap}
   @media (max-width:400px){ .slot .t{flex-basis:88px;width:88px;min-width:88px;font-size:.78rem} }
   .slot .blk{font-size:.95rem;min-height:52px}
@@ -1075,6 +1101,8 @@
   .week-label{min-height:44px;display:flex;align-items:center;justify-content:center;font-size:.875rem}
   .week-picker{min-height:44px;font-size:.875rem}
   #statsPrevMonth,#statsNextMonth,.cal-nav button{min-width:44px;min-height:44px}
+  .stat-label2,.stats-bar .stat-label{font-size:.75rem}
+  .stat-value2{font-size:1.15rem}
   .grid .head{min-height:44px}
   :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .sidebar :focus-visible{outline-offset:-2px}
@@ -1132,6 +1160,13 @@
   /* ===== celdas del horario operables con teclado ===== */
   .grid .cell .cell-link{position:absolute;inset:0;background:none;border:none;border-radius:inherit;cursor:pointer;padding:0;color:inherit}
   .grid .cell .edit{z-index:2}
+  /* borde de la celda como contorno interno: no ocupa espacio, así el botón de editar mide 44 px completos */
+  .grid .cell:not(.empty){border:none;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--text) 12%,transparent),0 1px 3px color-mix(in srgb,var(--text) 8%,transparent)}
+  .grid .cell:not(.empty):hover{box-shadow:inset 0 0 0 2px currentColor,0 1px 3px color-mix(in srgb,var(--text) 8%,transparent)}
+  .grid .cell button.edit{position:absolute;right:0;top:0;bottom:0;width:44px;height:auto;min-height:44px;display:flex;align-items:flex-end;justify-content:flex-end;padding:0 6px 6px 0;border-radius:8px}
+  .grid .cell button.edit .ic{width:14px;height:14px}
+  .grid .cell:focus-within .edit,.grid .cell .edit:focus-visible{opacity:1}
+  .grid .cell button.edit:focus-visible{outline:2px solid currentColor;outline-offset:-3px;background:color-mix(in srgb,currentColor 15%,transparent)}
   button.edit,button.blk-edit{background:none;border:none;color:inherit;cursor:pointer;padding:0}
 </style>
 </head>
@@ -2495,8 +2530,9 @@ function renderHabitTabs(){
     b.innerHTML = '<svg class="ic" viewBox="0 0 24 24"><use href="#i-'+c.icon+'"/></svg> '+esc(c.name);
     tabs.appendChild(b);
   });
-  tabs.querySelectorAll('button[data-filter]').forEach(b=>{
-    b.classList.toggle('active', habitFilter===b.dataset.filter);
+  tabs.querySelectorAll('button').forEach(b=>{
+    const key = b.dataset.filter || ('cat:'+b.dataset.cat);
+    b.classList.toggle('active', habitFilter===key); b.setAttribute('aria-pressed', String(habitFilter===key));
   });
 }
 
@@ -2697,7 +2733,8 @@ document.querySelectorAll('.field').forEach(f=>{
 });
 /* nombres accesibles para botones "+" que solo tienen ícono */
 function labelIconButtons(root){
-  (root||document).querySelectorAll('button').forEach(b=>{
+  const all = [...(root||document).querySelectorAll('button')]; if(root && root.tagName==='BUTTON') all.push(root);
+  all.forEach(b=>{
     if(b.getAttribute('aria-label') || b.textContent.trim()) return;
     const use = b.querySelector('use'); const ic = use ? (use.getAttribute('href')||'') : '';
     const map = { '#i-plus':'Agregar', '#i-trash':'Eliminar', '#i-edit':'Editar', '#i-x':'Cerrar', '#i-chev-l':'Anterior', '#i-chev-r':'Siguiente', '#i-copy':'Copiar' };
@@ -2710,8 +2747,8 @@ new MutationObserver(muts=>{ muts.forEach(m=>m.addedNodes.forEach(n=>{ if(n.node
 /* ============ MODALES: accesibilidad (foco, Tab, Escape) ============ */
 const modalStack = [];
 // Último elemento usado fuera de un modal: ahí regresa el foco al cerrarlo.
-let lastFocusOutside = null;
-document.addEventListener('focusin', e=>{ if(!e.target.closest('.overlay')) lastFocusOutside = e.target; });
+let lastFocusOutside = null, prevFocus = null, curFocus = null;
+document.addEventListener('focusin', e=>{ prevFocus = curFocus; curFocus = e.target; if(!e.target.closest('.overlay')) lastFocusOutside = e.target; });
 document.addEventListener('pointerdown', e=>{ if(!e.target.closest('.overlay')){ const f = e.target.closest('button,a,[tabindex],input,select,textarea'); if(f) lastFocusOutside = f; } }, true);
 function modalFocusables(ov){
   return [...ov.querySelectorAll('button,input,select,textarea,a[href],[tabindex]:not([tabindex="-1"])')]
@@ -2738,7 +2775,9 @@ document.querySelectorAll('.overlay').forEach(ov=>{
     const open = ov.classList.contains('open');
     const idx = modalStack.indexOf(ov);
     if(open && idx===-1){
-      ov._opener = (document.activeElement && !document.activeElement.closest('.overlay') && document.activeElement!==document.body) ? document.activeElement : lastFocusOutside;
+      // Quién abrió este modal: lo enfocado justo antes (puede estar dentro de otro modal abierto).
+      const act = document.activeElement;
+      ov._opener = (act && act!==document.body && !ov.contains(act)) ? act : (prevFocus && !ov.contains(prevFocus) ? prevFocus : lastFocusOutside);
       modalStack.push(ov);
       document.body.classList.add('modal-lock');
       // Si el modal no enfocó algo por su cuenta, enfoca el primer campo.
@@ -2748,7 +2787,10 @@ document.querySelectorAll('.overlay').forEach(ov=>{
       modalStack.splice(idx,1);
       if(!modalStack.length) document.body.classList.remove('modal-lock');
       const back = ov._opener; ov._opener = null;
-      if(back && document.contains(back) && typeof back.focus==='function') back.focus({preventScroll:true});
+      const top = modalStack[modalStack.length-1];
+      if(back && document.contains(back) && back.offsetParent!==null && (!top || top.contains(back))) back.focus({preventScroll:true});
+      else if(top){ const f = modalFocusables(top)[0]; if(f) f.focus({preventScroll:true}); }
+      else if(lastFocusOutside && document.contains(lastFocusOutside)) lastFocusOutside.focus({preventScroll:true});
     }
   }).observe(ov, { attributes:true, attributeFilter:['class'] });
 });
@@ -3018,8 +3060,8 @@ function updateSlotsSummary(){ const el = document.getElementById('slotsSummary'
 function generateQuickSlots(){
   const from = toMinutes(document.getElementById('slotFrom').value), to = toMinutes(document.getElementById('slotTo').value);
   const dur = +document.getElementById('slotDur').value;
-  if(!(from>=0) || !(to>0)) return { error:'Elige hora de inicio y de fin.' };
-  const end = to===0 ? 1440 : to;
+  if(!(from>=0) || !(to>=0)) return { error:'Elige hora de inicio y de fin.' };
+  const end = to===0 ? 1440 : to;   // 00:00 como fin = medianoche
   if(end<=from) return { error:'La hora de fin debe ser después del inicio (sin cruzar la medianoche).' };
   const out = [];
   for(let t=from; t<end; t+=dur){
@@ -3854,14 +3896,15 @@ function renderHabits(){
   cats.forEach(c=>groups.push({ id:c.id, name:c.name, icon:c.icon, color:c.color, items: items.filter(h=>h.categoryId===c.id) }));
   groups.push({ id:'', name:'Sin categoría', icon:'target', color:'#555', items: items.filter(h=>!h.categoryId || !findHabitCat(h.categoryId)) });
 
-  groupsEl.innerHTML = groups.filter(g=>g.items.length).map(g=>{
+  groupsEl.innerHTML = groups.filter(g=>g.items.length).map((g,gi)=>{
     const sorted = g.items.slice().sort((a,b)=>(b.priority?1:0)-(a.priority?1:0));
     const collapsed = collapsedHabitGroups.has(g.id);
     return '<div class="habit-group'+(collapsed?' collapsed':'')+'" data-cat-id="'+esc(g.id)+'">'+
-      '<div class="habit-group-head btn-toggle-group"><span class="habit-group-icon" style="background:'+g.color+'"><svg class="ic" viewBox="0 0 24 24"><use href="#i-'+g.icon+'"/></svg></span>'+
+      '<div class="habit-group-head"><button type="button" class="group-toggle btn-toggle-group" aria-expanded="'+!collapsed+'" aria-controls="hg-'+gi+'">'+
+      '<span class="habit-group-icon" style="background:'+g.color+'" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><use href="#i-'+g.icon+'"/></svg></span>'+
       esc(g.name)+'<span class="habit-group-count">'+g.items.length+'</span>'+
-      '<svg class="ic group-chevron" viewBox="0 0 24 24"><use href="#i-chev-r"/></svg></div>'+
-      '<div class="card-list">'+sorted.map(habitCard).join('')+'</div>'+
+      '<svg class="ic group-chevron" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chev-r"/></svg></button></div>'+
+      '<div class="card-list" id="hg-'+gi+'">'+sorted.map(habitCard).join('')+'</div>'+
       '</div>';
   }).join('');
 }
@@ -3874,7 +3917,7 @@ document.getElementById('habitGroups').addEventListener('click', e=>{
   const id = group.dataset.catId;
   if(collapsedHabitGroups.has(id)) collapsedHabitGroups.delete(id); else collapsedHabitGroups.add(id);
   saveCollapsedHabitGroups();
-  group.classList.toggle('collapsed');
+  head.setAttribute('aria-expanded', String(!group.classList.toggle('collapsed')));
 });
 
 document.getElementById('habitTabs').addEventListener('click', e=>{
@@ -4113,11 +4156,14 @@ document.getElementById('habitSave').addEventListener('click', async ()=>{
 });
 
 /* ---- iconos genéricos (hábitos y categorías de hábitos) ---- */
+const ICON_NAMES = { phone:'Teléfono', sun:'Sol', moon:'Luna', book:'Libro', heart:'Corazón', pray:'Oración', droplet:'Gota', dumbbell:'Pesa',
+  coffee:'Café', leaf:'Hoja', home:'Casa', utensils:'Cubiertos', star:'Estrella', check:'Palomita', ban:'Prohibido', tag:'Etiqueta', target:'Diana',
+  calendar:'Calendario', grid:'Cuadrícula', chart:'Gráfica', bell:'Campana', clock:'Reloj', sparkle:'Destellos' };
 function fillIconGridGeneric(container, icons, current){
-  container.innerHTML = icons.map(ic=>'<button type="button" data-icon="'+ic+'" class="'+(ic===current?'sel':'')+'"><svg class="ic" viewBox="0 0 24 24"><use href="#i-'+ic+'"/></svg></button>').join('');
+  container.innerHTML = icons.map(ic=>'<button type="button" data-icon="'+ic+'" class="'+(ic===current?'sel':'')+'" aria-label="Ícono: '+(ICON_NAMES[ic]||ic)+'" aria-pressed="'+(ic===current)+'"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-'+ic+'"/></svg></button>').join('');
   container.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
-    container.querySelectorAll('button').forEach(x=>x.classList.remove('sel'));
-    b.classList.add('sel');
+    container.querySelectorAll('button').forEach(x=>{ x.classList.remove('sel'); x.setAttribute('aria-pressed','false'); });
+    b.classList.add('sel'); b.setAttribute('aria-pressed','true');
   }));
 }
 function selectedIconGeneric(container){ const b=container.querySelector('button.sel'); return b?b.dataset.icon:''; }
@@ -4495,11 +4541,12 @@ function asButton(el, label, fn){
 function render(){
   grid.innerHTML=""; days.innerHTML="";
   // Altura de cada fila según su duración: 60 min = 42 px (mínimo 30 px).
-  grid.style.gridTemplateRows = '44px '+HORARIO.map(f=>Math.max(32, Math.round((f.end-f.start)*44/60))+'px').join(' ');
+  // Cada fila mide al menos 44 px (área táctil); de 1 h en adelante crece proporcional a su duración.
+  grid.style.gridTemplateRows = '44px '+HORARIO.map(f=>Math.max(44, Math.round((f.end-f.start)*44/60))+'px').join(' ');
   renderOutsideSlots();
   const h0=document.createElement('div'); h0.className='head'; h0.textContent='Hora'; h0.style.gridArea='1 / 1'; grid.appendChild(h0);
   DIAS.forEach((d,i)=>{ const e=document.createElement('div'); e.className='head'; e.dataset.col=i; e.textContent=d; e.style.gridArea='1 / '+(i+2); grid.appendChild(e); });
-  HORARIO.forEach((f,r)=>{ const hr=document.createElement('div'); hr.className='hora'; hr.dataset.row=r; hr.textContent=f.hora; hr.style.gridArea=(r+2)+' / 1'; grid.appendChild(hr); });
+  HORARIO.forEach((f,r)=>{ const hr=document.createElement('div'); hr.className='hora'; hr.dataset.row=r; hr.innerHTML=esc(f.hora).replace('-','-<wbr>'); hr.style.gridArea=(r+2)+' / 1'; grid.appendChild(hr); });
 
   DIAS.forEach((dia,di)=>{
     runsFor(di).forEach(run=>{
@@ -4561,7 +4608,7 @@ function render(){
 
   updateDayPills();
   let activo=toolbar.querySelector('button[data-dia].active');
-  if(window.matchMedia('(max-width:900px)').matches){
+  if(window.matchMedia('(max-width:1023px)').matches){
     // En celular: al abrir una semana se muestra el día de hoy (o el lunes en otras semanas),
     // salvo que ya hayas elegido un día o "Semana" en esta misma semana.
     let dia = (mobileDayChoice && mobileDayChoice.week===currentWeekId) ? mobileDayChoice.dia : null;
@@ -5084,7 +5131,7 @@ function renderActTabs(){
   });
   tabs.querySelectorAll('button').forEach(b=>{
     const key = b.dataset.filter || ('cat:'+b.dataset.cat);
-    b.classList.toggle('active', actFilter===key);
+    b.classList.toggle('active', actFilter===key); b.setAttribute('aria-pressed', String(actFilter===key));
   });
 }
 function actCardHtml(name){
@@ -5116,14 +5163,16 @@ function renderActList(){
   cats.forEach(c=>groups.push({ id:c.name, name:c.name, color:c.color, icon:c.icon||'tag', items: names.filter(n=>actMeta(n).category===c.name) }));
   groups.push({ id:'', name:'Sin categoría', color:'#555', icon:'tag', items: names.filter(n=>!actMeta(n).category) });
 
-  groupsEl.innerHTML = groups.filter(g=>g.items.length).map(g=>{
+  groupsEl.innerHTML = groups.filter(g=>g.items.length).map((g,gi)=>{
     const collapsed = collapsedActGroups.has(g.id);
     return '<div class="habit-group'+(collapsed?' collapsed':'')+'" data-cat-id="'+esc(g.id)+'">'+
-      '<div class="habit-group-head btn-toggle-group"><span class="habit-group-icon" style="background:'+g.color+'"><svg class="ic" viewBox="0 0 24 24"><use href="#i-'+g.icon+'"/></svg></span>'+
+      '<div class="habit-group-head"><button type="button" class="group-toggle btn-toggle-group" aria-expanded="'+!collapsed+'" aria-controls="ag-'+gi+'">'+
+      '<span class="habit-group-icon" style="background:'+g.color+'" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><use href="#i-'+g.icon+'"/></svg></span>'+
       esc(g.name)+'<span class="habit-group-count">'+g.items.length+'</span>'+
-      (g.id ? '<button type="button" class="icon-btn btn-manage-cat" style="margin-left:8px" title="Editar/eliminar categoría" aria-label="Editar categoría '+esc(g.name)+'"><svg class="ic" viewBox="0 0 24 24"><use href="#i-edit"/></svg></button>' : '')+
-      '<svg class="ic group-chevron" viewBox="0 0 24 24"><use href="#i-chev-r"/></svg></div>'+
-      '<div class="card-list">'+g.items.sort().map(actCardHtml).join('')+'</div>'+
+      '<svg class="ic group-chevron" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chev-r"/></svg></button>'+
+      (g.id ? '<button type="button" class="icon-btn btn-manage-cat" title="Editar/eliminar categoría" aria-label="Editar categoría '+esc(g.name)+'"><svg class="ic" viewBox="0 0 24 24"><use href="#i-edit"/></svg></button>' : '')+
+      '</div>'+
+      '<div class="card-list" id="ag-'+gi+'">'+g.items.sort().map(actCardHtml).join('')+'</div>'+
       '</div>';
   }).join('');
 }
@@ -5155,7 +5204,7 @@ document.getElementById('actGroups').addEventListener('click', async (e)=>{
     const id = group.dataset.catId;
     if(collapsedActGroups.has(id)) collapsedActGroups.delete(id); else collapsedActGroups.add(id);
     saveCollapsedActGroups();
-    group.classList.toggle('collapsed');
+    head.setAttribute('aria-expanded', String(!group.classList.toggle('collapsed')));
     return;
   }
   const menuBtn = e.target.closest('.btn-act-menu');
