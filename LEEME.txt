@@ -58,6 +58,24 @@ NUEVO: CRONÓMETRO, CUIDADO PERSONAL Y DIETA
   los permisos, con notificación del navegador.
 - El menú lateral se queda fijo; solo se desplaza el contenido.
 
+NUEVO: FRANJAS, PLANEA TU DÍA, AJUSTES Y DATOS SEGUROS
+-------------------------------------------------------
+- Mis franjas (Horario o Ajustes): eliges de qué hora a qué hora va tu
+  horario y la duración de los bloques (15 min a 2 h), o franjas libres
+  con su propio inicio y fin. Tus actividades se guardan con su hora
+  real, así que cambiar las franjas nunca las mueve ni las borra; las
+  que quedan fuera aparecen en un aviso debajo de la tabla.
+  Los datos anteriores se convierten solos al nuevo formato (se guarda
+  una copia del formato anterior en "legacyBackup").
+- Planea tu día: la primera vez que entras cada día te muestra tus horas
+  libres de hoy para llenarlas (con "Repetir lo de ayer"). Se puede
+  omitir, desactivar en Ajustes, o abrir a mano con "Planear hoy".
+- Ajustes reúne perfil, franjas, tema, notificaciones, respaldo
+  (exportar/importar TODO), ayuda y cerrar sesión.
+- Guardado seguro: cada usuario guarda solo sus datos (antes dos
+  guardados simultáneos podían pisarse), y si un guardado falla, sale un
+  aviso y se reintenta solo sin perder lo escrito.
+
 ACTIVAR EL ENVÍO DE CORREO PARA "OLVIDÉ MI CONTRASEÑA" (opcional)
 --------------------------------------------------------------------
 Sin esto, "olvidé mi contraseña" sigue funcionando: el enlace para

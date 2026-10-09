@@ -43,31 +43,70 @@ function readJSON(file, fallback) {
   try { return JSON.parse(fs.readFileSync(file, 'utf8')); }
   catch (e) { return fallback; }
 }
+// Escritura atómica: primero a un temporal y luego rename, para que un corte
+// a medio guardar nunca deje el archivo a la mitad.
 function writeJSON(file, obj) {
-  fs.writeFileSync(file, JSON.stringify(obj, null, 2), 'utf8');
+  const tmp = file + '.' + process.pid + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify(obj, null, 2), 'utf8');
+  fs.renameSync(tmp, file);
 }
 
-async function collectionToObject(col) {
-  const docs = await col.find().toArray();
-  const obj = {};
-  docs.forEach(d => { const { _id, ...rest } = d; obj[_id] = rest; });
-  return obj;
-}
-async function syncObjectToCollection(col, obj) {
-  const existingIds = (await col.find({}, { projection: { _id: 1 } }).toArray()).map(d => d._id);
-  const keys = Object.keys(obj);
-  const ops = keys.map(key => ({
-    replaceOne: { filter: { _id: key }, replacement: { _id: key, ...obj[key] }, upsert: true }
-  }));
-  if (ops.length) await col.bulkWrite(ops);
-  const toDelete = existingIds.filter(id => !keys.includes(id));
-  if (toDelete.length) await col.deleteMany({ _id: { $in: toDelete } });
+// En modo archivos JSON, las operaciones de leer-modificar-escribir se hacen en
+// fila (una a la vez) para que dos peticiones simultáneas no se pisen.
+let fileQueue = Promise.resolve();
+function withFileLock(fn) {
+  const run = fileQueue.then(fn, fn);
+  fileQueue = run.catch(() => {});
+  return run;
 }
 
-async function getUsers() { return usersCol ? collectionToObject(usersCol) : readJSON(USERS_FILE, {}); }
-async function saveUsers(u) { return usersCol ? syncObjectToCollection(usersCol, u) : writeJSON(USERS_FILE, u); }
-async function getSchedules() { return schedulesCol ? collectionToObject(schedulesCol) : readJSON(SCHEDULES_FILE, {}); }
-async function saveSchedules(s) { return schedulesCol ? syncObjectToCollection(schedulesCol, s) : writeJSON(SCHEDULES_FILE, s); }
+// Cada usuario se lee y se guarda POR SEPARADO. Antes se leían y reescribían
+// todos los usuarios en cada guardado, y dos personas guardando casi al mismo
+// tiempo podían borrarse los cambios entre sí.
+const strip = d => { if (!d) return null; const { _id, ...rest } = d; return rest; };
+async function getUser(key) {
+  if (usersCol) return strip(await usersCol.findOne({ _id: key }));
+  return readJSON(USERS_FILE, {})[key] || null;
+}
+async function listUsers() {
+  if (usersCol) { const obj = {}; (await usersCol.find().toArray()).forEach(d => { obj[d._id] = strip(d); }); return obj; }
+  return readJSON(USERS_FILE, {});
+}
+async function countUsers() { return usersCol ? usersCol.countDocuments() : Object.keys(readJSON(USERS_FILE, {})).length; }
+async function updateUser(key, mutate) {
+  if (usersCol) {
+    const next = mutate(strip(await usersCol.findOne({ _id: key })));
+    if (next === null) await usersCol.deleteOne({ _id: key });
+    else await usersCol.replaceOne({ _id: key }, { _id: key, ...next }, { upsert: true });
+    return next;
+  }
+  return withFileLock(() => {
+    const all = readJSON(USERS_FILE, {});
+    const next = mutate(all[key] || null);
+    if (next === null) delete all[key]; else all[key] = next;
+    writeJSON(USERS_FILE, all);
+    return next;
+  });
+}
+async function getSchedule(key) {
+  if (schedulesCol) return strip(await schedulesCol.findOne({ _id: key }));
+  return readJSON(SCHEDULES_FILE, {})[key] || null;
+}
+async function updateSchedule(key, mutate) {
+  if (schedulesCol) {
+    const next = mutate(strip(await schedulesCol.findOne({ _id: key })));
+    if (next === null) await schedulesCol.deleteOne({ _id: key });
+    else await schedulesCol.replaceOne({ _id: key }, { _id: key, ...next }, { upsert: true });
+    return next;
+  }
+  return withFileLock(() => {
+    const all = readJSON(SCHEDULES_FILE, {});
+    const next = mutate(all[key] || null);
+    if (next === null) delete all[key]; else all[key] = next;
+    writeJSON(SCHEDULES_FILE, all);
+    return next;
+  });
+}
 
 // Con MongoDB, el disco puede ser efímero (p. ej. Render), así que si no hay
 // un SESSION_SECRET fijo por variable de entorno, se genera uno nuevo en
@@ -98,8 +137,7 @@ function requireAuth(req, res, next) {
   next();
 }
 async function requireAdmin(req, res, next) {
-  const users = await getUsers();
-  const user = users[req.session.username];
+  const user = await getUser(req.session.username);
   if (!user || !user.isAdmin) return res.status(403).json({ error: 'Solo un administrador puede ver esto.' });
   next();
 }
@@ -127,21 +165,19 @@ if (GOOGLE_ENABLED) {
       const key = 'google:' + email.toLowerCase();
       const displayName = req.user.displayName || email;
 
-      const users = await getUsers();
-      if (!users[key]) {
-        users[key] = {
+      let user = await getUser(key);
+      if (!user) {
+        const isFirst = (await countUsers()) === 0;
+        user = await updateUser(key, prev => prev || {
           username: displayName, nombre: displayName, provider: 'google', email,
-          isAdmin: Object.keys(users).length === 0,
+          isAdmin: isFirst,
           createdAt: new Date().toISOString()
-        };
-        await saveUsers(users);
-        const schedules = await getSchedules();
-        schedules[key] = { acts: {}, link: {}, categories: [], weeks: {} };
-        await saveSchedules(schedules);
+        });
+        await updateSchedule(key, prev => prev || { acts: {}, link: {}, categories: [], weeks: {} });
       }
 
       req.session.username = key;
-      req.session.displayName = users[key].username;
+      req.session.displayName = user.username;
       res.redirect('/');
     }
   );
@@ -157,8 +193,7 @@ app.get('/api/config', (req, res) => {
 
 app.get('/api/session', async (req, res) => {
   if (!req.session.username) return res.json({ loggedIn: false });
-  const users = await getUsers();
-  const user = users[req.session.username];
+  const user = await getUser(req.session.username);
   res.json({
     loggedIn: true, username: req.session.displayName, isAdmin: !!(user && user.isAdmin),
     provider: user ? user.provider : 'local', email: user ? (user.email || '') : '',
@@ -167,7 +202,7 @@ app.get('/api/session', async (req, res) => {
 });
 
 app.get('/api/admin/users', requireAuth, requireAdmin, async (req, res) => {
-  const users = await getUsers();
+  const users = await listUsers();
   const list = Object.keys(users).map(key => {
     const u = users[key];
     return {
@@ -223,6 +258,58 @@ function addDays(d, n) { const nd = new Date(d); nd.setUTCDate(nd.getUTCDate() +
 const MIN_WEEK = isoWeekId(addDays(new Date(), -PAST_LIMIT_DAYS));
 const MAX_WEEK = isoWeekId(addDays(new Date(), FUTURE_LIMIT_DAYS));
 
+/* ============ FRANJAS PERSONALIZABLES ============ */
+// Formato 2 de celdas: llave "día|minutoDeInicio" y cada celda guarda su "end" (minuto de fin).
+// Formato 1 (anterior): llave "día|fila" con 17 filas fijas de 1 h desde las 5:00.
+const LEGACY_ROWS = 17, LEGACY_START = 300;
+function migrateCellV1(cell) {
+  const out = {}, unmapped = {};
+  Object.entries(cell || {}).forEach(([k, v]) => {
+    const m = /^(\d)\|(\d+)$/.exec(k);
+    const di = m ? +m[1] : -1, r = m ? +m[2] : -1;
+    if (m && di <= 6 && r < LEGACY_ROWS && v && typeof v === 'object') {
+      out[di + '|' + (LEGACY_START + 60 * r)] = { ...v, end: LEGACY_START + 60 * (r + 1) };
+    } else unmapped[k] = v;
+  });
+  return { out, unmapped };
+}
+// Convierte TODAS las semanas guardadas y el horario heredado. Idempotente: si ya
+// está en formato 2 no hace nada. Guarda una copia del formato anterior por si acaso.
+function migrateRec(rec) {
+  if (!rec || rec.cellFormat === 2) return rec;
+  const next = { ...rec };
+  if (!next.legacyBackup) next.legacyBackup = { cell: rec.cell || null, weeks: rec.weeks || null, savedAt: new Date().toISOString() };
+  const unmapped = {};
+  if (rec.cell) { const r = migrateCellV1(rec.cell); next.cell = r.out; if (Object.keys(r.unmapped).length) unmapped.cell = r.unmapped; }
+  if (rec.weeks) {
+    next.weeks = {};
+    Object.entries(rec.weeks).forEach(([wk, w]) => {
+      const r = migrateCellV1((w && w.cell) || {});
+      next.weeks[wk] = { ...(w || {}), cell: r.out };
+      if (Object.keys(r.unmapped).length) unmapped[wk] = r.unmapped;
+    });
+  }
+  if (Object.keys(unmapped).length) next.migrationUnmapped = unmapped;
+  next.cellFormat = 2;
+  return next;
+}
+function validSlots(slots) {
+  if (!Array.isArray(slots) || slots.length < 1 || slots.length > 96) return false;
+  let prevEnd = -1;
+  for (const sl of slots) {
+    if (!sl || !Number.isInteger(sl.start) || !Number.isInteger(sl.end)) return false;
+    if (sl.start < 0 || sl.end > 1440 || sl.end - sl.start < 15) return false;
+    if (sl.start < prevEnd) return false; // ordenadas y sin traslapes
+    prevEnd = sl.end;
+  }
+  return true;
+}
+async function ensureMigrated(key) {
+  const rec = await getSchedule(key);
+  if (!rec || rec.cellFormat === 2) return rec;
+  return updateSchedule(key, prev => migrateRec(prev));
+}
+
 function cellForWeek(rec, weekId) {
   const weeks = rec.weeks || {};
   if (weeks[weekId]) return weeks[weekId].cell || {};
@@ -235,28 +322,32 @@ app.get('/api/schedule', requireAuth, async (req, res) => {
   const key = req.session.username;
   let weekId = WEEK_RE.test(req.query.week || '') ? req.query.week : isoWeekId(new Date());
   if (!weekWithinLimits(weekId)) weekId = isoWeekId(new Date());
-  const schedules = await getSchedules();
-  const rec = schedules[key] || { acts: {}, link: {}, categories: [] };
-  const visits = rec.visits || [];
+  let rec = (await ensureMigrated(key)) || { acts: {}, link: {}, categories: [], cellFormat: 2 };
   const today = new Date().toISOString().slice(0, 10);
-  if (!visits.includes(today)) {
-    visits.push(today);
-    if (visits.length > 400) visits.splice(0, visits.length - 400);
-    schedules[key] = { ...rec, visits };
-    await saveSchedules(schedules);
+  if (!(rec.visits || []).includes(today)) {
+    rec = await updateSchedule(key, prev => {
+      const base = prev || rec;
+      const v = (base.visits || []).slice();
+      if (!v.includes(today)) v.push(today);
+      if (v.length > 400) v.splice(0, v.length - 400);
+      return { ...base, visits: v };
+    });
   }
+  const visits = rec.visits || [];
   res.json({
     acts: rec.acts || {}, link: rec.link || {}, categories: rec.categories || [],
     habits: rec.habits || [], goals: rec.goals || [], habitCategories: rec.habitCategories || [],
     habitsBestStreak: rec.habitsBestStreak || 0, onboarded: !!rec.onboarded,
     routines: rec.routines || null, reminders: rec.reminders || [],
+    slots: validSlots(rec.slots) ? rec.slots : null, cellFormat: 2,
+    dailyPlanning: { enabled: !(rec.dailyPlanning && rec.dailyPlanning.enabled === false) },
     cell: cellForWeek(rec, weekId), weekId, streak: streakFromVisits(visits),
     minWeek: MIN_WEEK, maxWeek: MAX_WEEK
   });
 });
 
 app.put('/api/schedule', requireAuth, async (req, res) => {
-  const { week, acts, link, categories, cell, habits, goals, habitCategories, habitsBestStreak, routines, reminders } = req.body || {};
+  const { week, acts, link, categories, cell, habits, goals, habitCategories, habitsBestStreak, routines, reminders, slots, cellFormat } = req.body || {};
   if (typeof acts !== 'object' || typeof link !== 'object' || typeof cell !== 'object' || !Array.isArray(categories)
     || !Array.isArray(habits || []) || !Array.isArray(goals || []) || !Array.isArray(habitCategories || [])
     || !Array.isArray(reminders || [])) {
@@ -266,28 +357,34 @@ app.put('/api/schedule', requireAuth, async (req, res) => {
   if (!weekWithinLimits(week)) {
     return res.status(400).json({ error: 'Esa semana está fuera del rango permitido (hasta 1 año atrás o 2 años adelante).' });
   }
+  if (slots !== undefined && slots !== null && !validSlots(slots)) return res.status(400).json({ error: 'Las franjas no son válidas (revisa horas, traslapes o duración mínima de 15 min).' });
   const key = req.session.username;
-  const schedules = await getSchedules();
-  const prev = schedules[key] || {};
-  const weeks = { ...(prev.weeks || {}) };
-  weeks[week] = { cell };
-  schedules[key] = {
-    ...prev, acts, link, categories, weeks,
-    habits: habits || prev.habits || [], goals: goals || prev.goals || [],
-    habitCategories: habitCategories || prev.habitCategories || [],
-    habitsBestStreak: Number.isFinite(habitsBestStreak) ? habitsBestStreak : (prev.habitsBestStreak || 0),
-    routines: (routines && typeof routines === 'object' && !Array.isArray(routines)) ? routines : (prev.routines || null),
-    reminders: reminders || prev.reminders || []
-  };
-  await saveSchedules(schedules);
+  const current = await ensureMigrated(key);
+  // Una pestaña vieja (antes de las franjas) mandaría celdas en el formato anterior y las revolvería.
+  if (current && current.cellFormat === 2 && cellFormat !== 2) {
+    return res.status(409).json({ error: 'Croni se actualizó. Recarga la página para seguir guardando.' });
+  }
+  await updateSchedule(key, prevRec => {
+    const prev = prevRec || {};
+    const weeks = { ...(prev.weeks || {}) };
+    weeks[week] = { cell };
+    return {
+      ...prev, acts, link, categories, weeks,
+      habits: habits || prev.habits || [], goals: goals || prev.goals || [],
+      habitCategories: habitCategories || prev.habitCategories || [],
+      habitsBestStreak: Number.isFinite(habitsBestStreak) ? habitsBestStreak : (prev.habitsBestStreak || 0),
+      routines: (routines && typeof routines === 'object' && !Array.isArray(routines)) ? routines : (prev.routines || null),
+      reminders: reminders || prev.reminders || [],
+      // null = volver a las franjas por defecto; si no viene el campo (pestaña vieja), se conservan.
+      slots: slots !== undefined ? slots : (prev.slots || null),
+      cellFormat: 2
+    };
+  });
   res.json({ ok: true });
 });
 
 app.post('/api/onboarding-done', requireAuth, async (req, res) => {
-  const key = req.session.username;
-  const schedules = await getSchedules();
-  schedules[key] = { ...(schedules[key] || {}), onboarded: true };
-  await saveSchedules(schedules);
+  await updateSchedule(req.session.username, prev => ({ ...(prev || {}), onboarded: true }));
   res.json({ ok: true });
 });
 
@@ -296,28 +393,23 @@ app.put('/api/profile', requireAuth, async (req, res) => {
   const nombreLimpio = (typeof nombre === 'string' ? nombre.trim() : '').slice(0, 60);
   if (!nombreLimpio) return res.status(400).json({ error: 'El nombre no puede estar vacío.' });
 
-  const users = await getUsers();
-  const user = users[req.session.username];
-  user.nombre = nombreLimpio;
-  await saveUsers(users);
+  const saved = await updateUser(req.session.username, prev => prev ? { ...prev, nombre: nombreLimpio } : prev);
+  if (!saved) return res.status(404).json({ error: 'No se encontró tu cuenta.' });
   req.session.displayName = nombreLimpio;
   res.json({ ok: true, username: nombreLimpio });
 });
 
 app.delete('/api/admin/users/:key', requireAuth, requireAdmin, async (req, res) => {
   const key = req.params.key;
-  const users = await getUsers();
+  const users = await listUsers();
   if (!users[key]) return res.status(404).json({ error: 'Ese usuario no existe.' });
   if (key === req.session.username) return res.status(400).json({ error: 'No puedes eliminar tu propia cuenta desde aquí.' });
   const admins = Object.keys(users).filter(k => users[k].isAdmin);
   if (users[key].isAdmin && admins.length <= 1) {
     return res.status(400).json({ error: 'No puedes eliminar al único administrador.' });
   }
-  delete users[key];
-  await saveUsers(users);
-  const schedules = await getSchedules();
-  delete schedules[key];
-  await saveSchedules(schedules);
+  await updateUser(key, () => null);
+  await updateSchedule(key, () => null);
   res.json({ ok: true });
 });
 
@@ -326,12 +418,6 @@ app.post('/api/schedule/delete-activity', requireAuth, async (req, res) => {
   if (typeof name !== 'string' || !name) return res.status(400).json({ error: 'Falta el nombre de la actividad.' });
 
   const key = req.session.username;
-  const schedules = await getSchedules();
-  const rec = schedules[key] || { acts: {}, link: {}, categories: [], weeks: {} };
-
-  delete rec.acts?.[name];
-  delete rec.link?.[name];
-
   const scrub = (cell) => {
     if (!cell) return;
     Object.keys(cell).forEach(k => {
@@ -341,15 +427,79 @@ app.post('/api/schedule/delete-activity', requireAuth, async (req, res) => {
       }
     });
   };
-  scrub(rec.cell);
-  Object.values(rec.weeks || {}).forEach(w => scrub(w.cell));
-
-  schedules[key] = rec;
-  await saveSchedules(schedules);
+  const rec = await updateSchedule(key, prev => {
+    const r = prev || { acts: {}, link: {}, categories: [], weeks: {} };
+    delete r.acts?.[name];
+    delete r.link?.[name];
+    scrub(r.cell);
+    Object.values(r.weeks || {}).forEach(w => scrub(w.cell));
+    return r;
+  });
 
   let weekId = WEEK_RE.test(week || '') ? week : isoWeekId(new Date());
   if (!weekWithinLimits(weekId)) weekId = isoWeekId(new Date());
   res.json({ ok: true, cell: cellForWeek(rec, weekId) });
+});
+
+/* ============ PLANEA TU DÍA ============ */
+// "Reclama" el día: solo la primera vez que se pide en esa fecha responde show:true,
+// así la ventana no vuelve a salir al recargar ni en otro dispositivo.
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+app.post('/api/daily-plan/claim', requireAuth, async (req, res) => {
+  const date = (req.body || {}).date;
+  if (!DATE_RE.test(date || '')) return res.status(400).json({ error: 'Fecha inválida.' });
+  let show = false;
+  await updateSchedule(req.session.username, prev => {
+    const r = prev || {};
+    const dp = { ...(r.dailyPlanning || {}) };
+    if (dp.enabled === false || dp.last === date) return r;
+    show = true;
+    dp.last = date;
+    return { ...r, dailyPlanning: dp };
+  });
+  res.json({ show });
+});
+app.post('/api/daily-plan/pref', requireAuth, async (req, res) => {
+  const enabled = (req.body || {}).enabled;
+  if (typeof enabled !== 'boolean') return res.status(400).json({ error: 'Valor inválido.' });
+  await updateSchedule(req.session.username, prev => ({ ...(prev || {}), dailyPlanning: { ...((prev || {}).dailyPlanning || {}), enabled } }));
+  res.json({ ok: true, enabled });
+});
+
+/* ============ RESPALDO COMPLETO (todas las semanas, hábitos, rutinas...) ============ */
+const BACKUP_FIELDS = ['acts', 'link', 'categories', 'cell', 'weeks', 'habits', 'goals', 'habitCategories',
+  'habitsBestStreak', 'routines', 'reminders', 'slots', 'cellFormat'];
+const isPlainObject = v => !!v && typeof v === 'object' && !Array.isArray(v);
+
+app.get('/api/backup', requireAuth, async (req, res) => {
+  const rec = (await ensureMigrated(req.session.username)) || {};
+  const data = {};
+  BACKUP_FIELDS.forEach(f => { if (rec[f] !== undefined) data[f] = rec[f]; });
+  res.json({ format: 'croni-backup', version: 2, exportedAt: new Date().toISOString(), data });
+});
+
+app.post('/api/backup/restore', requireAuth, async (req, res) => {
+  const body = req.body || {};
+  const d = body.data;
+  if (body.format !== 'croni-backup' || !isPlainObject(d)) return res.status(400).json({ error: 'Ese archivo no es un respaldo completo de Croni.' });
+  const objFields = ['acts', 'link', 'cell', 'weeks'], arrFields = ['categories', 'habits', 'goals', 'habitCategories', 'reminders'];
+  for (const f of objFields) if (d[f] !== undefined && !isPlainObject(d[f])) return res.status(400).json({ error: 'Respaldo dañado: "' + f + '" no es válido.' });
+  for (const f of arrFields) if (d[f] !== undefined && !Array.isArray(d[f])) return res.status(400).json({ error: 'Respaldo dañado: "' + f + '" no es válido.' });
+  if (d.routines !== undefined && d.routines !== null && !isPlainObject(d.routines)) return res.status(400).json({ error: 'Respaldo dañado: "routines" no es válido.' });
+  if (d.slots !== undefined && d.slots !== null && !validSlots(d.slots)) return res.status(400).json({ error: 'Respaldo dañado: "slots" no es válido.' });
+  for (const [wk, w] of Object.entries(d.weeks || {})) {
+    if (!WEEK_RE.test(wk) || !isPlainObject(w) || (w.cell !== undefined && !isPlainObject(w.cell))) return res.status(400).json({ error: 'Respaldo dañado: la semana "' + wk + '" no es válida.' });
+  }
+  await updateSchedule(req.session.username, prev => {
+    const next = { ...(prev || {}) };
+    BACKUP_FIELDS.forEach(f => {
+      if (f === 'slots' || f === 'cellFormat') { if (d[f] === undefined) delete next[f]; else next[f] = d[f]; return; }
+      next[f] = d[f] !== undefined ? d[f] : (Array.isArray(next[f]) ? [] : (f === 'habitsBestStreak' ? 0 : (f === 'routines' ? null : {})));
+    });
+    // Un respaldo de antes de las franjas viene en formato 1: se convierte al momento.
+    return migrateRec(next);
+  });
+  res.json({ ok: true });
 });
 
 app.use(express.static(path.join(__dirname, 'public'), {
