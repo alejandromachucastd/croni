@@ -340,7 +340,10 @@ app.get('/api/schedule', requireAuth, async (req, res) => {
     habitsBestStreak: rec.habitsBestStreak || 0, onboarded: !!rec.onboarded,
     routines: rec.routines || null, reminders: rec.reminders || [],
     slots: validSlots(rec.slots) ? rec.slots : null, cellFormat: 2,
-    dailyPlanning: { enabled: !(rec.dailyPlanning && rec.dailyPlanning.enabled === false) },
+    dailyPlanning: {
+      enabled: !(rec.dailyPlanning && rec.dailyPlanning.enabled === false),
+      tasksEnabled: !(rec.dailyPlanning && rec.dailyPlanning.tasksEnabled === false)
+    },
     cell: cellForWeek(rec, weekId), weekId, streak: streakFromVisits(visits),
     minWeek: MIN_WEEK, maxWeek: MAX_WEEK
   });
@@ -445,24 +448,28 @@ app.post('/api/schedule/delete-activity', requireAuth, async (req, res) => {
 // "Reclama" el día: solo la primera vez que se pide en esa fecha responde show:true,
 // así la ventana no vuelve a salir al recargar ni en otro dispositivo.
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+// kind: "plan" (Planea tu día) o "tasks" (Tareas de hoy); cada una lleva su propio registro.
+const DAILY_KINDS = { plan: { last: 'last', flag: 'enabled' }, tasks: { last: 'lastTasks', flag: 'tasksEnabled' } };
 app.post('/api/daily-plan/claim', requireAuth, async (req, res) => {
-  const date = (req.body || {}).date;
-  if (!DATE_RE.test(date || '')) return res.status(400).json({ error: 'Fecha inválida.' });
+  const { date, kind = 'plan' } = req.body || {};
+  const k = DAILY_KINDS[kind];
+  if (!DATE_RE.test(date || '') || !k) return res.status(400).json({ error: 'Fecha inválida.' });
   let show = false;
   await updateSchedule(req.session.username, prev => {
     const r = prev || {};
     const dp = { ...(r.dailyPlanning || {}) };
-    if (dp.enabled === false || dp.last === date) return r;
+    if (dp[k.flag] === false || dp[k.last] === date) return r;
     show = true;
-    dp.last = date;
+    dp[k.last] = date;
     return { ...r, dailyPlanning: dp };
   });
   res.json({ show });
 });
 app.post('/api/daily-plan/pref', requireAuth, async (req, res) => {
-  const enabled = (req.body || {}).enabled;
-  if (typeof enabled !== 'boolean') return res.status(400).json({ error: 'Valor inválido.' });
-  await updateSchedule(req.session.username, prev => ({ ...(prev || {}), dailyPlanning: { ...((prev || {}).dailyPlanning || {}), enabled } }));
+  const { enabled, kind = 'plan' } = req.body || {};
+  const k = DAILY_KINDS[kind];
+  if (typeof enabled !== 'boolean' || !k) return res.status(400).json({ error: 'Valor inválido.' });
+  await updateSchedule(req.session.username, prev => ({ ...(prev || {}), dailyPlanning: { ...((prev || {}).dailyPlanning || {}), [k.flag]: enabled } }));
   res.json({ ok: true, enabled });
 });
 

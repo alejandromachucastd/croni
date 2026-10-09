@@ -70,6 +70,10 @@ NUEVO: FRANJAS, PLANEA TU DÍA, AJUSTES Y DATOS SEGUROS
 - Planea tu día: la primera vez que entras cada día te muestra tus horas
   libres de hoy para llenarlas (con "Repetir lo de ayer"). Se puede
   omitir, desactivar en Ajustes, o abrir a mano con "Planear hoy".
+- Tareas de hoy: al entrar (después de "Planea tu día") repasa cada
+  actividad que tienes hoy para palomear sus tareas o agregar nuevas.
+  Con "Omitir" no guarda nada; se desactiva en Ajustes o se abre a mano
+  con "Tareas de hoy" en Horario.
 - Ajustes reúne perfil, franjas, tema, notificaciones, respaldo
   (exportar/importar TODO), ayuda y cerrar sesión.
 - Guardado seguro: cada usuario guarda solo sus datos (antes dos

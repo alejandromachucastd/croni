@@ -412,6 +412,51 @@
   }
   @keyframes sheetUp{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
   @media (prefers-reduced-motion:reduce){ .modal{animation:none} }
+  /* ===== Horario: pestañas de días ===== */
+  .day-pills button .ps{display:none}
+  .day-pills button .pd{font-weight:500;opacity:.75;font-variant-numeric:tabular-nums}
+  .day-pills button[data-dia="todos"] .pd{display:none}
+  .day-pills button .today-tag{margin-left:6px;font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;
+    padding:1px 6px;border-radius:999px;border:1px solid currentColor}
+  .day-pills button.is-today:not(.active){color:var(--text);box-shadow:inset 0 -2px 0 var(--accent)}
+  .day-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+  .day-card-head h3{margin:0}
+  .day-card-head .icon-btn{font-size:.85rem}
+  /* actividad en curso: borde + etiqueta "Ahora" en texto */
+  .grid .cell.is-now::after,.slot.is-now .blk::after{content:"Ahora";position:absolute;right:6px;top:4px;font-size:.62rem;font-weight:800;
+    text-transform:uppercase;letter-spacing:.05em;padding:1px 6px;border-radius:999px;background:var(--accent);color:#1a1a1a}
+  .slot .blk{position:relative}
+  .slot .blk .blk-edit{display:flex;align-items:center;justify-content:center;width:44px;height:44px;margin:-8px -10px -8px 0;border-radius:10px;flex-shrink:0}
+  .slot .blk .blk-edit:hover{background:color-mix(in srgb,currentColor 12%,transparent)}
+  .slot.is-now .blk::after{top:auto;bottom:6px;right:44px}
+  .grid .head.is-today{flex-direction:column;gap:0;line-height:1.1}
+  .grid .head.is-today::after{content:"Hoy";display:block;font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text);opacity:.8}
+  /* escritorio mediano: nombres cortos para que las pestañas quepan en una sola fila */
+  @media (min-width:901px) and (max-width:1280px){
+    #dayPills button .pl{display:none}
+    #dayPills button .ps{display:inline}
+    #dayPills button[data-dia="todos"] .pl{display:inline}
+    #dayPills button[data-dia="todos"] .ps{display:none}
+    #dayPills{flex-wrap:nowrap}
+  }
+  @media (min-width:901px){ #view-horario .toolbar{flex-wrap:nowrap} #dayPills{flex:1 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}
+    #dayPills button,#view-horario .toolbar .view-toggle{white-space:nowrap;flex:0 0 auto} }
+  @media (min-width:901px) and (max-width:1280px){
+    /* columnas angostas: menos relleno y sin partir palabras a la mitad */
+    .grid .cell{padding:4px 5px;font-size:.78rem}
+    #view-horario .grid .cell-lbl span{overflow-wrap:normal;word-break:normal}
+    #dayPills button[data-dia="todos"] .pl{display:none !important}
+    #dayPills button[data-dia="todos"] .ps{display:inline !important}
+  }
+  @media (max-width:900px){
+    #view-horario .toolbar{padding:6px}
+    #dayPills{gap:6px;padding:2px 4px;scroll-padding:0 24px;
+      -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 14px),transparent 100%);
+              mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 14px),transparent 100%)}
+    #dayPills button{min-height:44px;padding:0 14px;font-size:.9rem;white-space:nowrap}
+    #dayPills button .pl{display:none}
+    #dayPills button .ps{display:inline}
+  }
   /* ===== encabezado común de cada sección ===== */
   .page-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 18px}
   .page-icon{width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
@@ -430,7 +475,10 @@
     .page-head-text{flex-basis:0}
     .page-actions{flex:1 1 100%}
     .page-actions .go{flex:1}
+    .page-actions .icon-btn{flex:1 1 0;justify-content:center;white-space:nowrap;font-size:.8125rem;padding:0 6px;gap:5px;min-height:44px;min-width:0}
+    .page-actions .icon-btn .ic{width:14px;height:14px}
   }
+  @media (max-width:400px){ .page-actions .icon-btn .ic{display:none} }
   /* ===== planea tu día ===== */
   .plan-section{margin:0 0 14px}
   .plan-section h4{margin:0 0 8px;font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
@@ -447,6 +495,18 @@
   .link-btn{background:none !important;border:none !important;color:var(--muted);text-decoration:underline;font-size:.78rem;padding:6px 4px !important;margin-right:auto;cursor:pointer;min-height:36px}
   .link-btn:hover{color:var(--text)}
   @media (max-width:640px){ .plan-row{grid-template-columns:84px 1fr} .modal-actions .link-btn{flex:1 1 100%;order:3;margin:0;text-align:center} }
+  /* ===== tareas de hoy ===== */
+  .tasks-day{display:flex;flex-direction:column;gap:12px;max-height:56vh;overflow-y:auto;padding-right:2px}
+  .tasks-act{border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:var(--panel-2)}
+  .tasks-act-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+  .tasks-act-head .plan-chip{font-size:.72rem}
+  .tasks-act-head .count{margin-left:auto;font-size:.72rem;color:var(--muted);font-weight:600}
+  .tasks-act .task-row{background:var(--panel);margin-bottom:6px;min-height:42px;cursor:pointer}
+  .tasks-act .task-row input{width:18px;height:18px}
+  .tasks-add{display:flex;gap:6px}
+  .tasks-add input{flex:1;min-width:0;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:9px;padding:8px 10px;min-height:40px;font-size:.82rem}
+  .tasks-add input:focus{outline:none;border-color:var(--accent)}
+  .tasks-empty{font-size:.78rem;color:var(--muted);margin:0 0 8px}
   /* ===== franjas ===== */
   .slot-mode{display:flex;gap:6px;margin:0 0 14px;background:var(--panel-2);padding:4px;border-radius:12px;width:max-content;max-width:100%}
   .slot-mode button{background:none;border:none;border-radius:9px;padding:8px 16px;font-weight:700;font-size:.82rem;color:var(--muted);cursor:pointer;min-height:38px}
@@ -661,7 +721,7 @@
   .bar-row .bar-label{width:130px;flex-shrink:0;display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .bar-track{flex:1;background:var(--panel-2);border-radius:999px;height:10px;overflow:hidden}
   .bar-fill{height:100%;border-radius:999px}
-  .bar-val{width:46px;text-align:right;color:var(--muted);flex-shrink:0}
+  .bar-val{text-align:right;color:var(--muted);flex-shrink:0}
 
   .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
   .stat-card{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border);
@@ -830,7 +890,6 @@
 
   /* ===== responsive general (celular) ===== */
   @media (max-width:900px){
-    .day-pills button[data-dia="todos"]{display:none}
     .day-pills{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
     .day-pills::-webkit-scrollbar{display:none}
     .day-pills button{flex:0 0 auto}
@@ -921,7 +980,7 @@
 
   /* Horario: scroll propio y encabezados persistentes. */
   #view-horario .grid{
-    grid-template-columns:76px repeat(7,minmax(0,1fr));grid-auto-rows:42px;
+    grid-template-columns:88px repeat(7,minmax(0,1fr));grid-auto-rows:42px;
     gap:5px;padding:8px;isolation:isolate;
     border:1px solid var(--border);border-radius:14px;background:var(--bg)}
   /* los días quedan fijos arriba mientras se desplaza la página (ya no hay scroll dentro de la tabla) */
@@ -936,9 +995,9 @@
     #view-horario .toolbar{position:sticky;top:var(--appbar-height,0px);z-index:20;background:var(--panel);
       box-shadow:0 6px 14px color-mix(in srgb,var(--text) 8%,transparent);flex-wrap:nowrap;align-items:center}
     #view-horario .toolbar .day-pills{flex:1 1 auto}
-    /* "Copiar día" como botón de ícono compacto junto a los días */
-    #view-horario .toolbar #btnOpenCopyDay,#view-horario .toolbar #btnUndo{flex:0 0 auto;width:44px;min-height:44px;padding:0;font-size:0;gap:0}
-    #view-horario .toolbar #btnOpenCopyDay .ic,#view-horario .toolbar #btnUndo .ic{width:19px;height:19px}
+    /* en celular, "Copiar día" vive en el encabezado de cada día; aquí solo quedan las pestañas (y Deshacer si aplica) */
+    #view-horario .toolbar #btnOpenCopyDay{display:none}
+    #view-horario .toolbar #btnUndo{flex:0 0 auto;min-height:44px;font-size:.875rem}
   }
   .grid .hora.is-current-hour{background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:var(--text);font-weight:700}
   .grid .cell{min-width:0;border-radius:9px;padding:5px 9px;font-size:.76rem;
@@ -957,7 +1016,7 @@
   .grid .cell .sub{font-size:.65rem;opacity:1;margin-top:3px}
   .grid .cell-lbl{width:100%;min-width:0}
   .grid .cell-lbl span{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.3;overflow-wrap:anywhere}
-  .grid .cell[data-length="1"] .cell-lbl span{-webkit-line-clamp:1}
+  .grid .cell[data-length="1"] .cell-lbl span{-webkit-line-clamp:2;line-height:1.15}
   .days{gap:16px}
   .day-card{padding:16px}
   .day-card h3{font-size:1rem;margin-bottom:14px;letter-spacing:-.015em}
@@ -992,6 +1051,88 @@
     .slot .blk{padding:10px;font-size:.8rem}
     .modal-actions{gap:8px}
   }
+
+  /* ===== legibilidad y áreas táctiles (QA) ===== */
+  .page-head h2.view-title{font-size:1.5rem}
+  .page-head p.view-sub{font-size:.9rem}
+  .icon-btn,.toolbar button,.view-toggle{font-size:.875rem;min-height:44px}
+  button.habit-menu-btn{width:44px;height:44px;min-width:44px;min-height:44px;font-size:1.1rem}
+  #view-actividades .icon-btn,#view-habitos .icon-btn,.day-card-head .icon-btn{min-height:44px}
+  #actGroups .btn-manage-cat{width:44px;height:44px;justify-content:center;padding:0}
+  .habit-search{min-height:44px;font-size:.875rem}
+  .day-pills button{min-height:44px;font-size:.875rem}
+  .grid .head{font-size:.875rem}
+  .grid .hora{font-size:.75rem;white-space:nowrap}
+  .grid .cell{font-size:.8125rem}
+  .grid .cell .sub{font-size:.72rem}
+  .slot .t{font-size:.8125rem;flex:0 0 96px;width:96px;min-width:96px;white-space:nowrap}
+  @media (max-width:400px){ .slot .t{flex-basis:88px;width:88px;min-width:88px;font-size:.78rem} }
+  .slot .blk{font-size:.95rem;min-height:52px}
+  .legend-row{font-size:.84rem}
+  .habit-tabs button,.diet-tabs button{min-height:44px;font-size:.875rem}
+  .page-actions .go,.page-actions .icon-btn{min-height:44px}
+  .week-nav button,.week-today{min-height:44px;min-width:44px;font-size:.875rem}
+  .week-label{min-height:44px;display:flex;align-items:center;justify-content:center;font-size:.875rem}
+  .week-picker{min-height:44px;font-size:.875rem}
+  #statsPrevMonth,#statsNextMonth,.cal-nav button{min-width:44px;min-height:44px}
+  .grid .head{min-height:44px}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .sidebar :focus-visible{outline-offset:-2px}
+  @media (max-width:820px){
+    .page-head h2.view-title{font-size:1.375rem}
+    /* 16 px en campos: evita el zoom automático de iOS al escribir */
+    input:not([type=checkbox]):not([type=radio]),select,textarea{font-size:16px !important}
+  }
+
+  /* ===== Actividades: filas compactas ===== */
+  #view-actividades .habit-filterbar,#view-actividades #actGroups{max-width:860px}
+  #actGroups .card-list{gap:0;border:1px solid var(--border);border-radius:12px;background:var(--panel);overflow:hidden}
+  #actGroups .act-card{display:flex;flex-wrap:nowrap;align-items:center;gap:12px;min-height:56px;padding:6px 8px 6px 14px;
+    border:none;border-radius:0;box-shadow:none;background:transparent;border-top:1px solid var(--border);transform:none}
+  #actGroups .act-card:first-child{border-top:none}
+  #actGroups .act-card:hover{background:var(--panel-2);transform:none;box-shadow:none}
+  #actGroups .act-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 2px color-mix(in srgb,var(--text) 8%,transparent)}
+  #actGroups .act-info{flex:1 1 auto;min-width:0}
+  #actGroups .act-name{font-size:.92rem;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+  #actGroups .act-meta{font-size:.78rem;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
+  #actGroups .act-meta:empty{display:none}
+  #actGroups .act-meta .ic{width:12px;height:12px;vertical-align:-2px;margin-right:3px}
+  #actGroups .btn-act-menu{flex-shrink:0;margin-left:auto}
+  @media (max-width:640px){
+    #actGroups .act-card{flex-wrap:nowrap;row-gap:0}
+    #actGroups .act-info{flex:1 1 auto}
+  }
+
+  /* ===== Estadísticas ===== */
+  #view-estadisticas .charts-grid{align-items:start;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr)}
+  .bars{display:flex;flex-direction:column;gap:8px}
+  .bar-row{display:flex;gap:10px;align-items:center;font-size:.84rem;min-width:0}
+  .bar-row .bar-name{flex:0 0 30%;min-width:84px;max-width:220px}
+  .bar-row .bar-track{flex:1 1 auto;min-width:24px}
+  .bar-row .bar-val{flex:0 0 auto}
+  .bars .bar-row{margin-bottom:0}
+  #barsActs{min-width:0}
+  .bar-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+  .bar-track{height:12px;border-radius:99px;background:var(--panel-2);overflow:hidden}
+  .bar-fill{display:block;height:100%;border-radius:99px;min-width:4px}
+  .bar-val{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.78rem;white-space:nowrap}
+  @media (max-width:900px){ #view-estadisticas .charts-grid{grid-template-columns:1fr} }
+  @media (max-width:420px){ .bar-row{gap:8px} .bar-row .bar-name{flex-basis:32%;min-width:76px} }
+
+  /* ===== estados vacíos ===== */
+  .empty-state{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:32px 16px;
+    border:1px dashed var(--border);border-radius:14px;background:var(--panel)}
+  .empty-state .es-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:var(--accent)}
+  .empty-state .es-icon .ic{width:22px;height:22px}
+  .empty-state b{font-size:1rem}
+  .empty-state p{margin:0;color:var(--muted);font-size:.9rem;max-width:420px}
+  .empty-state .go{width:auto;margin-top:6px;display:inline-flex;align-items:center;gap:7px;padding:10px 18px;min-height:44px}
+
+  /* ===== celdas del horario operables con teclado ===== */
+  .grid .cell .cell-link{position:absolute;inset:0;background:none;border:none;border-radius:inherit;cursor:pointer;padding:0;color:inherit}
+  .grid .cell .edit{z-index:2}
+  button.edit,button.blk-edit{background:none;border:none;color:inherit;cursor:pointer;padding:0}
 </style>
 </head>
 <body>
@@ -1033,7 +1174,7 @@
   <aside class="sidebar">
     <div class="sidebar-topbar">
       <div class="brand"><svg class="ic ic-lg" viewBox="0 0 24 24"><use href="#i-calendar"/></svg><span class="brand-word"><span class="c1">Cro</span><span class="c2">ni</span></span></div>
-      <button id="sidebarMenuToggle" class="hamburger-btn">
+      <button id="sidebarMenuToggle" class="hamburger-btn" aria-label="Abrir menú" aria-expanded="false" aria-controls="mainNav">
         <svg class="ic" viewBox="0 0 24 24"><use href="#i-hamburger" id="hamburgerIconUse"/></svg>
       </button>
     </div>
@@ -1065,7 +1206,7 @@
           <h2 class="view-title">Horario</h2>
           <p class="view-sub">Tu semana hora por hora. Toca un espacio para asignarle una actividad.</p>
         </div>
-        <div class="page-actions"><button class="icon-btn" id="btnPlanToday"><svg class="ic" viewBox="0 0 24 24"><use href="#i-sun"/></svg> Planear hoy</button><button class="icon-btn" id="btnEditSlots"><svg class="ic" viewBox="0 0 24 24"><use href="#i-clock"/></svg> Mis franjas</button></div>
+        <div class="page-actions"><button class="icon-btn" id="btnTasksToday"><svg class="ic" viewBox="0 0 24 24"><use href="#i-check"/></svg> Tareas de hoy</button><button class="icon-btn" id="btnPlanToday"><svg class="ic" viewBox="0 0 24 24"><use href="#i-sun"/></svg> Planear hoy</button><button class="icon-btn" id="btnEditSlots"><svg class="ic" viewBox="0 0 24 24"><use href="#i-clock"/></svg> Mis franjas</button></div>
       </header>
       <div class="topbar">
       <div class="week-nav" id="weekNav">
@@ -1079,7 +1220,7 @@
       <div class="now-banner" id="nowBanner" hidden></div>
       <div class="toolbar" id="toolbar">
         <div class="day-pills" id="dayPills">
-          <button data-dia="todos" class="active">Todos</button>
+          <button data-dia="todos" class="active" aria-pressed="true"><span class="pl">Toda la semana</span><span class="ps">Semana</span></button>
         </div>
         <span class="toolbar-sep"></span>
         <button class="view-toggle" id="btnOpenCopyDay" title="Copiar día" aria-label="Copiar día"><svg class="ic" viewBox="0 0 24 24"><use href="#i-copy"/></svg> Copiar día</button>
@@ -1148,7 +1289,7 @@
         </div>
         <div class="chart-block">
           <h3>Horas por actividad</h3>
-          <div class="chart-row"><div class="pie-wrap" id="pieActs"></div><div class="legend" id="legendActs"></div></div>
+          <div class="bars" id="barsActs" role="list"></div>
         </div>
       </div>
 
@@ -1315,6 +1456,10 @@
           <label class="setting-row setting-check">
             <div class="setting-text"><b>Planea tu día al entrar</b><span>La primera vez que abres Croni cada día, te ayuda a llenar tus horas libres de hoy.</span></div>
             <input type="checkbox" id="setPlanEnabled">
+          </label>
+          <label class="setting-row setting-check">
+            <div class="setting-text"><b>Repasar las tareas de hoy al entrar</b><span>Te pregunta por las tareas de cada actividad que tienes hoy en tu horario.</span></div>
+            <input type="checkbox" id="setTasksEnabled">
           </label>
         </div>
         <div class="settings-block">
@@ -1505,6 +1650,20 @@
   <button type="button" data-act="timer-edit" id="habitMenuTimerEdit"><svg class="ic" viewBox="0 0 24 24"><use href="#i-clock"/></svg>Cambiar inicio del cronómetro</button>
   <button type="button" data-act="timer-stop" id="habitMenuTimerStop"><svg class="ic" viewBox="0 0 24 24"><use href="#i-x"/></svg>Detener cronómetro</button>
   <button type="button" data-act="delete" class="danger"><svg class="ic" viewBox="0 0 24 24"><use href="#i-trash"/></svg>Eliminar</button>
+</div>
+
+<div class="overlay" id="tasksOverlay">
+  <div class="modal" style="max-width:540px">
+    <h2 id="tasksTitle">Tareas de hoy</h2>
+    <p class="sub" id="tasksSub"></p>
+    <div id="tasksBody"></div>
+    <p class="err" id="tasksErr"></p>
+    <div class="modal-actions">
+      <button class="link-btn" id="tasksNever" type="button">No volver a preguntar</button>
+      <button class="ghost" id="tasksSkip" type="button">Omitir</button>
+      <button class="save" id="tasksSave" type="button">Listo</button>
+    </div>
+  </div>
 </div>
 
 <div class="overlay" id="planOverlay">
@@ -2238,6 +2397,8 @@ document.getElementById('mainNav').addEventListener('click', (e)=>{
   closeMobileMenu();
 });
 function setMobileMenuIcon(open){
+  const t = document.getElementById('sidebarMenuToggle');
+  t.setAttribute('aria-expanded', open ? 'true' : 'false'); t.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
   document.getElementById('hamburgerIconUse').setAttribute('href', open ? '#i-x' : '#i-hamburger');
 }
 function closeMobileMenu(){
@@ -2356,7 +2517,7 @@ function habitCard(h){
     '<div class="habit-info"><div class="habit-name">'+(h.priority?'<svg class="ic" viewBox="0 0 24 24" style="fill:currentColor"><use href="#i-star"/></svg>':'')+esc(h.name)+'</div>'+
     '<div class="habit-meta"><svg class="ic" viewBox="0 0 24 24" style="width:11px;height:11px;color:#e0962f"><use href="#i-undo"/></svg>'+streakLabel+'</div></div>'+
     '<button class="habit-toggle '+onClass+' btn-toggle-habit">'+(marked?'<svg class="ic" viewBox="0 0 24 24"><use href="#i-check"/></svg> ':'')+toggleLabel+'</button>'+
-    '<button class="habit-menu-btn btn-habit-menu">⋮</button>'+
+    '<button class="habit-menu-btn btn-habit-menu" aria-label="Opciones de '+esc(h.name)+'" aria-haspopup="menu">⋮</button>'+
     '</div>';
 }
 
@@ -2521,8 +2682,37 @@ document.querySelectorAll('.routine-view').forEach(v=>v.addEventListener('submit
   await saveRemote();
 }));
 
+/* ---- asociar cada <label> de formulario con su campo ---- */
+document.querySelectorAll('.field').forEach(f=>{
+  const lab = f.querySelector(':scope > label'); if(!lab || lab.htmlFor) return;
+  const ctl = f.querySelector('input:not([type=hidden]),select,textarea');
+  if(ctl && ctl.id) lab.htmlFor = ctl.id;
+  else if(ctl){ ctl.id = 'fld'+Math.random().toString(36).slice(2,8); lab.htmlFor = ctl.id; }
+  else {
+    // Controles compuestos (rejilla de íconos, selector de tipo…): grupo con nombre.
+    const grp = lab.nextElementSibling; if(!grp) return;
+    if(!lab.id) lab.id = 'lbl'+Math.random().toString(36).slice(2,8);
+    grp.setAttribute('role','group'); grp.setAttribute('aria-labelledby', lab.id);
+  }
+});
+/* nombres accesibles para botones "+" que solo tienen ícono */
+function labelIconButtons(root){
+  (root||document).querySelectorAll('button').forEach(b=>{
+    if(b.getAttribute('aria-label') || b.textContent.trim()) return;
+    const use = b.querySelector('use'); const ic = use ? (use.getAttribute('href')||'') : '';
+    const map = { '#i-plus':'Agregar', '#i-trash':'Eliminar', '#i-edit':'Editar', '#i-x':'Cerrar', '#i-chev-l':'Anterior', '#i-chev-r':'Siguiente', '#i-copy':'Copiar' };
+    if(map[ic]) b.setAttribute('aria-label', map[ic]);
+  });
+}
+labelIconButtons();
+new MutationObserver(muts=>{ muts.forEach(m=>m.addedNodes.forEach(n=>{ if(n.nodeType===1) labelIconButtons(n); })); }).observe(document.body, { childList:true, subtree:true });
+
 /* ============ MODALES: accesibilidad (foco, Tab, Escape) ============ */
 const modalStack = [];
+// Último elemento usado fuera de un modal: ahí regresa el foco al cerrarlo.
+let lastFocusOutside = null;
+document.addEventListener('focusin', e=>{ if(!e.target.closest('.overlay')) lastFocusOutside = e.target; });
+document.addEventListener('pointerdown', e=>{ if(!e.target.closest('.overlay')){ const f = e.target.closest('button,a,[tabindex],input,select,textarea'); if(f) lastFocusOutside = f; } }, true);
 function modalFocusables(ov){
   return [...ov.querySelectorAll('button,input,select,textarea,a[href],[tabindex]:not([tabindex="-1"])')]
     .filter(el=>!el.disabled && !el.closest('[hidden]') && el.offsetParent!==null);
@@ -2548,7 +2738,7 @@ document.querySelectorAll('.overlay').forEach(ov=>{
     const open = ov.classList.contains('open');
     const idx = modalStack.indexOf(ov);
     if(open && idx===-1){
-      ov._opener = document.activeElement;
+      ov._opener = (document.activeElement && !document.activeElement.closest('.overlay') && document.activeElement!==document.body) ? document.activeElement : lastFocusOutside;
       modalStack.push(ov);
       document.body.classList.add('modal-lock');
       // Si el modal no enfocó algo por su cuenta, enfoca el primer campo.
@@ -2698,11 +2888,117 @@ document.getElementById('btnPlanToday').addEventListener('click', ()=>{
 async function maybeShowDailyPlan(){
   try{
     const cb = document.getElementById('setPlanEnabled'); if(cb) cb.checked = !(data.dailyPlanning && data.dailyPlanning.enabled===false);
-    if(!data.onboarded || (data.dailyPlanning && data.dailyPlanning.enabled===false)) return;
-    if(isoWeekId(new Date())!==currentWeekId || document.querySelector('.overlay.open')) return;
-    if(!freeRowsToday().length) return;
+    if(!data.onboarded || isoWeekId(new Date())!==currentWeekId || document.querySelector('.overlay.open')) return;
+    if((data.dailyPlanning && data.dailyPlanning.enabled===false) || !freeRowsToday().length){ maybeShowDailyTasks(); return; }
     const r = await api('/api/daily-plan/claim', { method:'POST', body: JSON.stringify({ date: todayLocal() }) });
-    if(r && r.show && !document.querySelector('.overlay.open')) openPlanToday();
+    if(r && r.show && !document.querySelector('.overlay.open')){
+      openPlanToday();
+      const obs = new MutationObserver(()=>{ if(!planOv.classList.contains('open')){ obs.disconnect(); setTimeout(maybeShowDailyTasks, 250); } });
+      obs.observe(planOv, { attributes:true, attributeFilter:['class'] });
+      return;
+    }
+  }catch(e){}
+  maybeShowDailyTasks();
+}
+
+/* ============ TAREAS DE HOY ============ */
+const tasksOv = document.getElementById('tasksOverlay');
+let tasksDraft = null; // { acts:[{name, hora}], tasks:{name:[...]}, dirty:Set }
+function todayActivities(){
+  const seen = new Map();
+  runsFor(todayDi()).forEach(run=>{
+    if(run.empty) return;
+    if(!seen.has(run.act)) seen.set(run.act, []);
+    seen.get(run.act).push(run.hora);
+  });
+  return [...seen.entries()].map(([name, horas])=>({ name, horas }));
+}
+function renderTasksToday(){
+  const { acts, tasks } = tasksDraft;
+  const pend = acts.reduce((t,a)=>t+tasks[a.name].filter(x=>!x.done).length, 0);
+  document.getElementById('tasksSub').textContent = new Date().toLocaleDateString('es-MX',{ weekday:'long', day:'numeric', month:'long' })+' · '+
+    acts.length+(acts.length===1?' actividad':' actividades')+' hoy'+(pend ? ' · '+pend+(pend===1?' tarea pendiente':' tareas pendientes') : '');
+  document.getElementById('tasksBody').innerHTML = !acts.length
+    ? '<div class="plan-empty">Hoy no tienes actividades en tu horario. Usa "Planear hoy" para agregar.</div>'
+    : '<div class="tasks-day">'+acts.map(a=>{
+        const meta = actMeta(a.name), list = tasks[a.name];
+        const done = list.filter(x=>x.done).length;
+        return '<div class="tasks-act" data-act="'+esc(a.name)+'">'+
+          '<div class="tasks-act-head"><span class="plan-chip" style="background:'+meta.color+';color:'+scheduleTextColor(meta)+'">'+esc(a.name)+'</span>'+
+          '<span style="font-size:.72rem;color:var(--muted)">'+esc(a.horas.join(', '))+'</span>'+
+          (list.length ? '<span class="count">'+done+'/'+list.length+'</span>' : '')+'</div>'+
+          (list.length ? list.map(t=>'<label class="task-row'+(t.done?' done':'')+'" data-id="'+esc(t.id)+'"><input type="checkbox" class="task-check"'+(t.done?' checked':'')+'><span class="task-text">'+esc(t.text)+'</span></label>').join('')
+                       : '<p class="tasks-empty">Sin tareas. ¿Qué tienes que hacer en '+esc(a.name)+'?</p>')+
+          '<form class="tasks-add"><input type="text" maxlength="140" placeholder="Agregar tarea…" aria-label="Nueva tarea para '+esc(a.name)+'"><button class="icon-btn" type="submit" aria-label="Agregar"><svg class="ic" viewBox="0 0 24 24"><use href="#i-plus"/></svg></button></form>'+
+          '</div>';
+      }).join('')+'</div>';
+  const save = document.getElementById('tasksSave');
+  save.hidden = !acts.length;
+  save.textContent = tasksDraft.dirty.size ? 'Guardar' : 'Listo';
+  document.getElementById('tasksSkip').textContent = acts.length ? 'Omitir' : 'Cerrar';
+}
+function openTasksToday(){
+  const acts = todayActivities();
+  const tasks = {};
+  acts.forEach(a=>{ tasks[a.name] = getTasks(a.name).map(t=>({ ...t })); });
+  tasksDraft = { acts, tasks, dirty:new Set() };
+  document.getElementById('tasksErr').textContent = '';
+  renderTasksToday();
+  tasksOv.classList.add('open');
+}
+document.getElementById('tasksBody').addEventListener('change', e=>{
+  const row = e.target.closest('.task-row'); if(!row || !e.target.classList.contains('task-check')) return;
+  const name = row.closest('.tasks-act').dataset.act;
+  const t = tasksDraft.tasks[name].find(x=>x.id===row.dataset.id); if(!t) return;
+  t.done = e.target.checked; tasksDraft.dirty.add(name);
+  const scroll = document.querySelector('#tasksBody .tasks-day').scrollTop;
+  renderTasksToday(); const box = document.querySelector('#tasksBody .tasks-day'); if(box) box.scrollTop = scroll;
+});
+document.getElementById('tasksBody').addEventListener('submit', e=>{
+  const form = e.target.closest('.tasks-add'); if(!form) return;
+  e.preventDefault();
+  const text = form.querySelector('input').value.trim().slice(0,140); if(!text) return;
+  const name = form.closest('.tasks-act').dataset.act;
+  tasksDraft.tasks[name].push({ id:'t'+Date.now().toString(36)+Math.random().toString(36).slice(2,6), text, done:false });
+  tasksDraft.dirty.add(name);
+  const scroll = document.querySelector('#tasksBody .tasks-day').scrollTop;
+  renderTasksToday();
+  const box = document.querySelector('#tasksBody .tasks-day'); if(box) box.scrollTop = scroll;
+  const again = document.querySelector('#tasksBody .tasks-act[data-act="'+CSS.escape(name)+'"] .tasks-add input'); if(again) again.focus();
+});
+document.getElementById('tasksSkip').addEventListener('click', ()=>tasksOv.classList.remove('open'));
+tasksOv.addEventListener('click', e=>{ if(e.target===tasksOv) tasksOv.classList.remove('open'); });
+document.getElementById('tasksSave').addEventListener('click', async ()=>{
+  if(!tasksDraft.dirty.size){ tasksOv.classList.remove('open'); return; }
+  const before = {};
+  tasksDraft.dirty.forEach(name=>{ before[name] = getTasks(name); setTasks(name, tasksDraft.tasks[name]); });
+  const ok = await saveRemote();
+  if(!ok){ Object.entries(before).forEach(([n,t])=>setTasks(n,t)); document.getElementById('tasksErr').textContent = 'No se pudo guardar. Revisa tu conexión e intenta de nuevo.'; return; }
+  tasksOv.classList.remove('open');
+  showToast('Tareas guardadas', 'Se actualizaron las tareas de '+tasksDraft.dirty.size+(tasksDraft.dirty.size===1?' actividad':' actividades')+'.', 'check');
+});
+async function setTasksPref(enabled){
+  try{ await api('/api/daily-plan/pref', { method:'POST', body: JSON.stringify({ enabled, kind:'tasks' }) }); data.dailyPlanning = { ...(data.dailyPlanning||{}), tasksEnabled: enabled }; }catch(e){}
+  const cb = document.getElementById('setTasksEnabled'); if(cb) cb.checked = enabled;
+}
+document.getElementById('tasksNever').addEventListener('click', async ()=>{
+  tasksOv.classList.remove('open');
+  await setTasksPref(false);
+  showToast('Listo', 'Ya no te preguntaremos por tus tareas al entrar. Puedes reactivarlo en Ajustes o usar "Tareas de hoy" en Horario.', 'check');
+});
+document.getElementById('setTasksEnabled').addEventListener('change', e=>setTasksPref(e.target.checked));
+document.getElementById('btnTasksToday').addEventListener('click', ()=>{
+  if(isoWeekId(new Date())!==currentWeekId){ viewedDate = new Date(); loadSchedule().then(()=>{ render(); openTasksToday(); }); return; }
+  openTasksToday();
+});
+async function maybeShowDailyTasks(){
+  try{
+    const cb = document.getElementById('setTasksEnabled'); if(cb) cb.checked = !(data.dailyPlanning && data.dailyPlanning.tasksEnabled===false);
+    if(!data.onboarded || (data.dailyPlanning && data.dailyPlanning.tasksEnabled===false)) return;
+    if(isoWeekId(new Date())!==currentWeekId || document.querySelector('.overlay.open')) return;
+    if(!todayActivities().length) return;
+    const r = await api('/api/daily-plan/claim', { method:'POST', body: JSON.stringify({ date: todayLocal(), kind:'tasks' }) });
+    if(r && r.show && !document.querySelector('.overlay.open')) openTasksToday();
   }catch(e){}
 }
 
@@ -2909,8 +3205,8 @@ function renderReminders(){
     remGroup('Hoy','', todays.map(r=>remCard(r, today, today, {})))+
     remGroup('Próximos','', upcoming.map(x=>remCard(x.r, x.d, today, { showDate:true })))+
     remGroup('Completados','', doneOnce.map(r=>remCard(r, r.date, today, { showDate:true })));
-  if(!list.length) html = '<div class="rem-empty"><svg class="ic" viewBox="0 0 24 24"><use href="#i-bell"/></svg>Todavía no tienes recordatorios.<br>Crea el primero con "Nuevo recordatorio".</div>';
-  else if(!html) html = '<div class="rem-empty">Nada pendiente por ahora.</div>';
+  if(!list.length) html = emptyStateHtml('bell','Todavía no tienes recordatorios','Crea uno de una sola vez o que se repita; te avisamos a su hora.','btnNewReminder','Crear recordatorio');
+  else if(!html) html = emptyStateHtml('check','Nada pendiente por ahora','Tus recordatorios de hoy ya están hechos.','','');
   document.getElementById('remList').innerHTML = html;
   const perm = document.getElementById('remPermission');
   perm.hidden = !('Notification' in window) || Notification.permission!=='default' || !list.length;
@@ -3473,7 +3769,7 @@ function badHabitCard(h, cat){
     (h.icon ? '<span class="habit-icon-badge" style="background:'+(cat?cat.color:'#555')+'"><svg class="ic" viewBox="0 0 24 24"><use href="#i-'+h.icon+'"/></svg></span>' : '')+
     '<div class="habit-info"><div class="habit-name">'+(h.priority?'<svg class="ic" viewBox="0 0 24 24" style="fill:currentColor"><use href="#i-star"/></svg>':'')+esc(h.name)+'</div>'+
     body+'</div>'+buttons+
-    '<button class="habit-menu-btn btn-habit-menu">⋮</button>'+
+    '<button class="habit-menu-btn btn-habit-menu" aria-label="Opciones de '+esc(h.name)+'" aria-haspopup="menu">⋮</button>'+
     '</div>';
 }
 setInterval(()=>{
@@ -3876,9 +4172,16 @@ function goalDueInfo(dateStr){
   const days = Math.round((new Date(dateStr+'T00:00:00') - new Date(today+'T00:00:00'))/86400000);
   return { label: 'En '+days+(days===1?' día':' días'), cls:'' };
 }
+function emptyStateHtml(icon, title, text, btnId, btnLabel){
+  return '<div class="empty-state"><span class="es-icon" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><use href="#i-'+icon+'"/></svg></span>'+
+    '<b>'+title+'</b><p>'+text+'</p>'+
+    (btnId ? '<button type="button" class="go es-action" data-trigger="'+btnId+'"><svg class="ic" viewBox="0 0 24 24"><use href="#i-plus"/></svg> '+btnLabel+'</button>' : '')+'</div>';
+}
+document.addEventListener('click', e=>{ const b = e.target.closest('.es-action'); if(b){ const t = document.getElementById(b.dataset.trigger); if(t) t.click(); } });
 function renderGoals(){
   const goals = (data.goals||[]).slice().sort((a,b)=> (a.done-b.done) || a.dueDate.localeCompare(b.dueDate));
   const total = goals.length, done = goals.filter(g=>g.done).length;
+  document.getElementById('goalsSummary').hidden = !total;
   const overdue = goals.filter(g=>!g.done && g.dueDate < todayLocal()).length;
   document.getElementById('goalsSummary').innerHTML =
     '<div class="stat"><span class="stat-label">Metas cumplidas</span><span class="stat-value">'+done+' / '+total+'</span></div>'+
@@ -3900,7 +4203,7 @@ function renderGoals(){
       '</div>'+
       '<div class="act-actions"><button class="icon-btn btn-edit-goal"><svg class="ic" viewBox="0 0 24 24"><use href="#i-edit"/></svg> Editar</button></div>'+
       '</div>';
-  }).join('') || '<p style="color:var(--muted);font-size:.85rem">Aún no tienes metas. Crea una con fecha límite.</p>';
+  }).join('') || emptyStateHtml('target','Todavía no tienes metas','Ponte una meta con fecha límite y, si quieres, asóciala a una actividad o a un hábito.','btnNewGoal','Crear meta');
 }
 document.getElementById('goalList').addEventListener('click', async (e)=>{
   const card = e.target.closest('.goal-card'); if(!card) return;
@@ -4184,10 +4487,15 @@ function updateScheduleHighlights(){
   });
 }
 
+// Hace que un elemento se pueda usar con teclado como botón (Enter / Espacio) y tenga nombre accesible.
+function asButton(el, label, fn){
+  el.tabIndex = 0; el.setAttribute('role','button'); el.setAttribute('aria-label', label);
+  el.addEventListener('keydown', ev=>{ if(ev.target!==el) return; if(ev.key==='Enter' || ev.key===' '){ ev.preventDefault(); fn(); } });
+}
 function render(){
   grid.innerHTML=""; days.innerHTML="";
   // Altura de cada fila según su duración: 60 min = 42 px (mínimo 30 px).
-  grid.style.gridTemplateRows = '42px '+HORARIO.map(f=>Math.max(30, Math.round((f.end-f.start)*0.7))+'px').join(' ');
+  grid.style.gridTemplateRows = '44px '+HORARIO.map(f=>Math.max(32, Math.round((f.end-f.start)*44/60))+'px').join(' ');
   renderOutsideSlots();
   const h0=document.createElement('div'); h0.className='head'; h0.textContent='Hora'; h0.style.gridArea='1 / 1'; grid.appendChild(h0);
   DIAS.forEach((d,i)=>{ const e=document.createElement('div'); e.className='head'; e.dataset.col=i; e.textContent=d; e.style.gridArea='1 / '+(i+2); grid.appendChild(e); });
@@ -4198,7 +4506,8 @@ function render(){
       const el=document.createElement('div');
       el.dataset.col=di; el.dataset.row=run.row; el.dataset.length=run.len;
       el.style.gridColumn=(di+2)+''; el.style.gridRow=(run.row+2)+' / span '+run.len;
-      if(run.empty){ el.className='cell empty'; el.addEventListener('click',()=>openCell(di,run.row)); grid.appendChild(el); return; }
+      if(run.empty){ el.className='cell empty'; el.addEventListener('click',()=>openCell(di,run.row));
+        asButton(el, DIAS[di]+', '+run.hora+': libre. Agregar actividad', ()=>openCell(di,run.row)); grid.appendChild(el); return; }
       const c=data.cell[run.id]||{}; const meta=actMeta(run.act); const label=run.act;
       const url=data.link[run.act]||"";
       el.className='cell'+(url?'':' nolink');
@@ -4207,18 +4516,23 @@ function render(){
       el.innerHTML=
         (c.nota?'<span class="badge">Nota</span>':'')+
         (run.len>1?'<span class="badge cnt">'+run.len+'×</span>':'')+
-        '<span class="edit"><svg class="ic" viewBox="0 0 24 24"><use href="#i-edit"/></svg></span>'+
+        (url ? '<button type="button" class="cell-link" aria-label="Abrir enlace de '+esc(label)+', '+DIAS[di]+' '+esc(run.hora)+'"></button>' : '')+
+        (url ? '<button type="button" class="edit" aria-label="Editar '+esc(label)+', '+DIAS[di]+' '+esc(run.hora)+'">'
+             : '<span class="edit" aria-hidden="true">')+'<svg class="ic" viewBox="0 0 24 24"><use href="#i-edit"/></svg>'+(url?'</button>':'</span>')+
         '<span class="cell-lbl"><span>'+esc(label)+'</span></span>'+
         (run.len>1?'<span class="sub">'+esc(run.hora)+'</span>':'');
       el.querySelector('.edit').addEventListener('click',ev=>{ ev.stopPropagation(); openCell(di,run.row); });
       el.addEventListener('click',()=>{ url ? window.open(url,'_blank','noopener') : openCell(di,run.row); });
+      if(url){ el.setAttribute('role','group'); el.setAttribute('aria-label', label+', '+DIAS[di]+' '+run.hora); }
+      else asButton(el, label+', '+DIAS[di]+' '+run.hora+(c.nota?', con nota':'')+'. Editar', ()=>openCell(di,run.row));
       grid.appendChild(el);
     });
   });
 
   DIAS.forEach((dia,di)=>{
     const card=document.createElement('div'); card.className='day-card'; card.dataset.dia=dia; card.dataset.col=di;
-    card.innerHTML='<h3>'+dia+'</h3>';
+    card.innerHTML='<div class="day-card-head"><h3>'+dia+'</h3>'+
+      '<button type="button" class="icon-btn btn-copy-this-day" data-di="'+di+'" aria-label="Copiar el '+dia+' a otro día"><svg class="ic" viewBox="0 0 24 24"><use href="#i-copy"/></svg> Copiar día</button></div>';
     runsFor(di).forEach(run=>{
       const slot=document.createElement('div'); slot.className='slot'; slot.dataset.col=di; slot.dataset.row=run.row; slot.dataset.length=run.len;
       const t=document.createElement('div'); t.className='t'; t.textContent=run.hora; slot.appendChild(t);
@@ -4226,14 +4540,18 @@ function render(){
       if(run.empty){
         node.className='blk empty'; node.textContent='+ agregar';
         node.addEventListener('click',()=>openCell(di,run.row));
+        asButton(node, dia+', '+run.hora+': libre. Agregar actividad', ()=>openCell(di,run.row));
       } else {
         const c=data.cell[run.id]||{}; const meta=actMeta(run.act);
         const label=run.act; const url=data.link[run.act]||"";
         node.className='blk'+(url?'':' nolink');
         node.style.background=meta.color; node.style.color=scheduleTextColor(meta);
         node.innerHTML='<span class="lbl"><span>'+esc(label)+(c.nota?'<span class="note">Nota: '+esc(c.nota)+'</span>':'')+'</span></span>'+
-          '<svg class="ic" viewBox="0 0 24 24"><use href="#i-'+(url?'external':'edit')+'"/></svg>';
-        node.addEventListener('click',()=>{ url ? window.open(url,'_blank','noopener') : openCell(di,run.row); });
+          (url ? '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-external"/></svg>'+
+                 '<button type="button" class="blk-edit" aria-label="Editar '+esc(label)+', '+dia+' '+esc(run.hora)+'"><svg class="ic" viewBox="0 0 24 24"><use href="#i-edit"/></svg></button>'
+               : '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-edit"/></svg>');
+        node.addEventListener('click',ev=>{ if(ev.target.closest('.blk-edit')){ ev.stopPropagation(); openCell(di,run.row); return; } url ? window.open(url,'_blank','noopener') : openCell(di,run.row); });
+        asButton(node, label+', '+dia+' '+run.hora+(c.nota?', nota: '+c.nota:'')+(url?'. Abrir enlace':'. Editar'), ()=>{ url ? window.open(url,'_blank','noopener') : openCell(di,run.row); });
         node.addEventListener('contextmenu',ev=>{ ev.preventDefault(); openCell(di,run.row); });
       }
       slot.appendChild(node); card.appendChild(slot);
@@ -4241,16 +4559,15 @@ function render(){
     days.appendChild(card);
   });
 
+  updateDayPills();
   let activo=toolbar.querySelector('button[data-dia].active');
-  if(window.matchMedia('(max-width:900px)').matches && (!activo || activo.dataset.dia==='todos')){
-    const jsDay=new Date().getDay();
-    const todayName=DIAS[jsDay===0?6:jsDay-1];
-    const todayBtn=toolbar.querySelector('button[data-dia="'+todayName+'"]');
-    if(todayBtn){
-      toolbar.querySelectorAll('button[data-dia]').forEach(x=>x.classList.remove('active'));
-      todayBtn.classList.add('active');
-      activo=todayBtn;
-    }
+  if(window.matchMedia('(max-width:900px)').matches){
+    // En celular: al abrir una semana se muestra el día de hoy (o el lunes en otras semanas),
+    // salvo que ya hayas elegido un día o "Semana" en esta misma semana.
+    let dia = (mobileDayChoice && mobileDayChoice.week===currentWeekId) ? mobileDayChoice.dia : null;
+    if(!dia){ const jsDay=new Date().getDay(); dia = isoWeekId(new Date())===currentWeekId ? DIAS[jsDay===0?6:jsDay-1] : DIAS[0]; }
+    const btn = toolbar.querySelector('button[data-dia="'+dia+'"]');
+    if(btn){ toolbar.querySelectorAll('button[data-dia]').forEach(x=>{ x.classList.remove('active'); x.setAttribute('aria-pressed','false'); }); btn.classList.add('active'); btn.setAttribute('aria-pressed','true'); activo=btn; }
   }
   filtrar(activo?activo.dataset.dia:'todos');
   updateStats();
@@ -4260,7 +4577,23 @@ function render(){
 
 /* ============ FILTRO POR DÍA ============ */
 const dayPills = document.getElementById('dayPills');
-DIAS.forEach(d=>{ const b=document.createElement('button'); b.dataset.dia=d; b.textContent=d; dayPills.appendChild(b); });
+DIAS.forEach(d=>{ const b=document.createElement('button'); b.dataset.dia=d; b.setAttribute('aria-pressed','false'); dayPills.appendChild(b); });
+// Etiqueta de cada día con su número y una marca "Hoy" en texto (no solo color).
+function updateDayPills(){
+  const monday = mondayFromWeekId(currentWeekId || isoWeekId(new Date()));
+  const today = todayLocal();
+  dayPills.querySelectorAll('button[data-dia]').forEach(b=>{
+    const i = DIAS.indexOf(b.dataset.dia); if(i<0) return;
+    const d = new Date(monday); d.setDate(monday.getDate()+i);
+    const iso = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const isToday = iso===today;
+    b.classList.toggle('is-today', isToday);
+    b.innerHTML = '<span class="pl">'+DIAS[i]+'</span><span class="ps">'+DIAS[i].slice(0,3)+'</span> <span class="pd">'+d.getDate()+'</span>'+(isToday?'<span class="today-tag">Hoy</span>':'');
+    b.setAttribute('aria-label', DIAS[i]+' '+d.getDate()+(isToday?', hoy':''));
+  });
+}
+// Día elegido en celular: se respeta mientras sigas en la misma semana.
+let mobileDayChoice = null;
 function filtrar(dia){
   const idx=DIAS.indexOf(dia);
   days.querySelectorAll('.day-card').forEach(c=>{ c.style.display=(dia==='todos'||c.dataset.dia===dia)?'':'none'; });
@@ -4271,8 +4604,11 @@ function filtrar(dia){
 }
 toolbar.addEventListener('click',e=>{
   const btn=e.target.closest('button[data-dia]'); if(!btn) return;
-  toolbar.querySelectorAll('button[data-dia]').forEach(x=>x.classList.remove('active'));
-  btn.classList.add('active'); filtrar(btn.dataset.dia);
+  toolbar.querySelectorAll('button[data-dia]').forEach(x=>{ x.classList.remove('active'); x.setAttribute('aria-pressed','false'); });
+  btn.classList.add('active'); btn.setAttribute('aria-pressed','true');
+  mobileDayChoice = { week: currentWeekId, dia: btn.dataset.dia };
+  filtrar(btn.dataset.dia);
+  centerActiveDayPill();
 });
 document.getElementById('viewToggle').addEventListener('click',()=>{
   document.body.classList.toggle('list-mode');
@@ -4299,7 +4635,7 @@ function computeStats(){
 }
 function updateStats(){
   const s = computeStats();
-  document.getElementById('statHoras').textContent = s.horas+' h';
+  document.getElementById('statHoras').textContent = fmtN(s.horas,1)+' h';
   document.getElementById('statActs').textContent = s.actsUsed.size;
   document.getElementById('statDias').textContent = s.diasSet.size+'/7';
   document.getElementById('statRacha').textContent = currentStreak + (currentStreak===1?' día':' días');
@@ -4326,7 +4662,7 @@ function pieChartSvg(entries, isCategory, size){
     const large = sweep>180?1:0;
     const d='M'+cx+','+cy+' L'+x1+','+y1+' A'+(r-1)+','+(r-1)+' 0 '+large+' 1 '+x2+','+y2+' Z';
     angle += sweep;
-    return '<path d="'+d+'" fill="'+colorForStat(name,isCategory)+'" stroke="var(--panel)" stroke-width="1"><title>'+esc(name)+': '+val+' h</title></path>';
+    return '<path d="'+d+'" fill="'+colorForStat(name,isCategory)+'" stroke="var(--panel)" stroke-width="1"><title>'+esc(name)+': '+fmtN(val,1)+' h</title></path>';
   }).join('');
   return '<svg viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'">'+parts+'</svg>';
 }
@@ -4335,7 +4671,7 @@ function legendHtml(entries, isCategory){
   return entries.map(([name,val])=>{
     const pct = total? Math.round(val/total*100):0;
     return '<div class="legend-row"><span class="legend-dot" style="background:'+colorForStat(name,isCategory)+'"></span>'+
-      '<span class="legend-name">'+esc(name)+'</span><span class="legend-val">'+val+' h · '+pct+'%</span></div>';
+      '<span class="legend-name">'+esc(name)+'</span><span class="legend-val">'+fmtN(val,1)+' h · '+pct+'%</span></div>';
   }).join('');
 }
 function renderPie(mapKey, containerId, legendId, isCategory){
@@ -4343,14 +4679,26 @@ function renderPie(mapKey, containerId, legendId, isCategory){
   document.getElementById(containerId).innerHTML = pieChartSvg(entries, isCategory) || '<p style="color:var(--muted);font-size:.8rem">Aún no hay nada programado.</p>';
   document.getElementById(legendId).innerHTML = legendHtml(entries, isCategory);
 }
+// Barras horizontales ordenadas por duración: mejor que un pastel para comparar muchas actividades.
+function renderBars(map, id){
+  const entries = Object.entries(map).sort((a,b)=>b[1]-a[1]);
+  const total = entries.reduce((t,e)=>t+e[1],0), max = entries.length ? entries[0][1] : 0;
+  document.getElementById(id).innerHTML = entries.length ? entries.map(([name,val])=>{
+    const pct = total ? Math.round(val/total*100) : 0;
+    return '<div class="bar-row" role="listitem" aria-label="'+esc(name)+': '+fmtN(val,1)+' horas, '+pct+' por ciento">'+
+      '<span class="bar-name" title="'+esc(name)+'">'+esc(name)+'</span>'+
+      '<span class="bar-track" aria-hidden="true"><span class="bar-fill" style="width:'+(max?Math.max(2,val/max*100):0)+'%;background:'+colorForStat(name,false)+'"></span></span>'+
+      '<span class="bar-val">'+fmtN(val,1)+' h · '+pct+'%</span></div>';
+  }).join('') : '<p style="color:var(--muted);font-size:.85rem;margin:0">Aún no hay nada programado esta semana.</p>';
+}
 function renderStatsPage(){
   const s = computeStats();
-  document.getElementById('statHoras2').textContent = s.horas+' h';
+  document.getElementById('statHoras2').textContent = fmtN(s.horas,1)+' h';
   document.getElementById('statActs2').textContent = s.actsUsed.size;
   document.getElementById('statDias2').textContent = s.diasSet.size+'/7';
   document.getElementById('statRacha2').textContent = currentStreak + (currentStreak===1?' día':' días');
   renderPie(s.horasPorCategoria, 'pieCats', 'legendCats', true);
-  renderPie(s.horasPorActividad, 'pieActs', 'legendActs', false);
+  renderBars(s.horasPorActividad, 'barsActs');
 
   const habits = data.habits||[];
   const today = todayLocal();
@@ -4358,10 +4706,10 @@ function renderStatsPage(){
     const marked = !!(h.history||{})[today];
     return h.kind==='good' ? marked : !marked;
   }).length;
-  document.getElementById('statHabitsToday').textContent = habitsOk+'/'+habits.length;
+  document.getElementById('statHabitsToday').textContent = habits.length ? habitsOk+'/'+habits.length : 'Sin hábitos';
 
   const goals = data.goals||[];
-  document.getElementById('statGoalsDone').textContent = goals.filter(g=>g.done).length+'/'+goals.length;
+  document.getElementById('statGoalsDone').textContent = goals.length ? goals.filter(g=>g.done).length+'/'+goals.length : 'Sin metas';
 
   renderMonthlyStats();
 }
@@ -4451,7 +4799,7 @@ async function renderMonthlyStats(){
   ]);
   grid.innerHTML =
     '<div class="stat-card"><span class="stat-icon"><svg class="ic" viewBox="0 0 24 24"><use href="#i-chart"/></svg></span>'+
-      '<span class="stat-body"><span class="stat-label2">Horas programadas</span><span class="stat-value2">'+sched.totalHoras+' h</span></span></div>'+
+      '<span class="stat-body"><span class="stat-label2">Horas programadas</span><span class="stat-value2">'+fmtN(sched.totalHoras,1)+' h</span></span></div>'+
     '<div class="stat-card"><span class="stat-icon"><svg class="ic" viewBox="0 0 24 24"><use href="#i-grid"/></svg></span>'+
       '<span class="stat-body"><span class="stat-label2">Actividades distintas</span><span class="stat-value2">'+sched.actsCount+'</span></span></div>'+
     '<div class="stat-card"><span class="stat-icon"><svg class="ic" viewBox="0 0 24 24"><use href="#i-calendar"/></svg></span>'+
@@ -4459,7 +4807,7 @@ async function renderMonthlyStats(){
     '<div class="stat-card"><span class="stat-icon"><svg class="ic" viewBox="0 0 24 24"><use href="#i-check"/></svg></span>'+
       '<span class="stat-body"><span class="stat-label2">Hábitos cumplidos</span><span class="stat-value2">'+hab.pct+'%</span></span></div>'+
     '<div class="stat-card"><span class="stat-icon"><svg class="ic" viewBox="0 0 24 24"><use href="#i-target"/></svg></span>'+
-      '<span class="stat-body"><span class="stat-label2">Metas de este mes</span><span class="stat-value2">'+goal.done+'/'+goal.total+'</span></span></div>';
+      '<span class="stat-body"><span class="stat-label2">Metas de este mes</span><span class="stat-value2">'+(goal.total ? goal.done+'/'+goal.total : 'Sin metas')+'</span></span></div>';
 }
 document.getElementById('statsPrevMonth').addEventListener('click', ()=>{
   statsViewMonth--; if(statsViewMonth<0){ statsViewMonth=11; statsViewYear--; }
@@ -4480,6 +4828,12 @@ function copyDay(fromDi,toDi){
 }
 const copyDayOv = document.getElementById('copyDayOverlay');
 document.getElementById('btnOpenCopyDay').addEventListener('click', ()=> copyDayOv.classList.add('open'));
+document.getElementById('days').addEventListener('click', e=>{
+  const b = e.target.closest('.btn-copy-this-day'); if(!b) return;
+  const from = +b.dataset.di;
+  copyFromSel.value = String(from); copyToSel.value = String((from+1)%7);
+  copyDayOv.classList.add('open');
+});
 document.getElementById('copyDayCancel').addEventListener('click', ()=> copyDayOv.classList.remove('open'));
 copyDayOv.addEventListener('click', e=>{ if(e.target===copyDayOv) copyDayOv.classList.remove('open'); });
 document.getElementById('btnCopyDay').addEventListener('click', async ()=>{
@@ -4735,11 +5089,17 @@ function renderActTabs(){
 }
 function actCardHtml(name){
   const isBase = name in BASE;
+  const nTasks = getTasks(name).length, pend = getTasks(name).filter(t=>!t.done).length;
+  // Solo se muestra lo que aporta: enlace si existe, tareas si hay.
+  const meta = (data.link[name] ? '<span><svg class="ic" viewBox="0 0 24 24"><use href="#i-external"/></svg>Con enlace</span>' : '')+
+    (nTasks ? '<span><svg class="ic" viewBox="0 0 24 24"><use href="#i-check"/></svg>'+(pend ? pend+' de '+nTasks+' tareas pendientes' : nTasks+(nTasks===1?' tarea':' tareas')+' hechas')+'</span>' : '')+
+    (isBase ? '<span>De la plantilla</span>' : '');
   return '<div class="act-card" draggable="true" data-name="'+esc(name)+'">'+
-    '<span class="drag-handle" title="Arrastrar">⋮⋮</span>'+
-    '<div class="act-info"><div class="act-name">'+esc(name)+'</div>'+
-    '<div class="act-meta">'+(data.link[name]?'Con enlace':'Sin enlace')+(isBase?' · de la plantilla':'')+'</div></div>'+
-    '<button class="habit-menu-btn btn-act-menu">⋮</button>'+
+    '<span class="drag-handle" title="Arrastrar" aria-hidden="true">⋮⋮</span>'+
+    '<span class="act-dot" style="background:'+actMeta(name).color+'" aria-hidden="true"></span>'+
+    '<div class="act-info"><div class="act-name" title="'+esc(name)+'">'+esc(name)+'</div>'+
+    '<div class="act-meta">'+meta+'</div></div>'+
+    '<button class="habit-menu-btn btn-act-menu" aria-label="Opciones de '+esc(name)+'" aria-haspopup="menu">⋮</button>'+
     '</div>';
 }
 function renderActList(){
@@ -4761,7 +5121,7 @@ function renderActList(){
     return '<div class="habit-group'+(collapsed?' collapsed':'')+'" data-cat-id="'+esc(g.id)+'">'+
       '<div class="habit-group-head btn-toggle-group"><span class="habit-group-icon" style="background:'+g.color+'"><svg class="ic" viewBox="0 0 24 24"><use href="#i-'+g.icon+'"/></svg></span>'+
       esc(g.name)+'<span class="habit-group-count">'+g.items.length+'</span>'+
-      (g.id ? '<button type="button" class="icon-btn btn-manage-cat" style="margin-left:8px" title="Editar/eliminar categoría"><svg class="ic" viewBox="0 0 24 24"><use href="#i-edit"/></svg></button>' : '')+
+      (g.id ? '<button type="button" class="icon-btn btn-manage-cat" style="margin-left:8px" title="Editar/eliminar categoría" aria-label="Editar categoría '+esc(g.name)+'"><svg class="ic" viewBox="0 0 24 24"><use href="#i-edit"/></svg></button>' : '')+
       '<svg class="ic group-chevron" viewBox="0 0 24 24"><use href="#i-chev-r"/></svg></div>'+
       '<div class="card-list">'+g.items.sort().map(actCardHtml).join('')+'</div>'+
       '</div>';
