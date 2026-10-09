@@ -1615,23 +1615,28 @@ document.querySelector('.sidebar-bottom').addEventListener('click', closeMobileM
 /* ============ HÁBITOS (aparte del horario) ============ */
 function todayLocal(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function dateMinus(dateStr, n){ const d=new Date(dateStr+'T00:00:00'); d.setDate(d.getDate()-n); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+const MAX_STREAK_DAYS = 3650;
+function habitCreatedDate(h){ return (h.createdAt && /^\d{4}-\d{2}-\d{2}/.test(h.createdAt)) ? h.createdAt.slice(0,10) : null; }
 function habitStreak(habit){
   const today = todayLocal();
   const hist = habit.history || {};
+  let streak=0;
   if(habit.kind==='good'){
-    let streak=0, cursor = hist[today] ? today : dateMinus(today,1);
-    while(hist[cursor]){ streak++; cursor = dateMinus(cursor,1); }
+    let cursor = hist[today] ? today : dateMinus(today,1);
+    while(hist[cursor] && streak<MAX_STREAK_DAYS){ streak++; cursor = dateMinus(cursor,1); }
     return streak;
   }
-  const boundary = habit.createdAt ? habit.createdAt.slice(0,10) : '1970-01-01';
-  let streak=0, cursor=today;
-  while(cursor>=boundary && !hist[cursor]){ streak++; cursor = dateMinus(cursor,1); }
+  // Hábito a evitar: días seguidos sin caer, contando solo desde que lo creaste.
+  const boundary = habitCreatedDate(habit) || dateMinus(today, MAX_STREAK_DAYS);
+  let cursor=today;
+  while(cursor>=boundary && !hist[cursor] && streak<MAX_STREAK_DAYS){ streak++; cursor = dateMinus(cursor,1); }
   return streak;
 }
 const HABIT_ICONS = ["phone","sun","moon","book","heart","pray","droplet","dumbbell","coffee","leaf","home","utensils","star","check","ban"];
 function findHabitCat(id){ return (data.habitCategories||[]).find(c=>c.id===id) || null; }
+// Solo cuentan los hábitos que ya existían ese día.
 function allHabitsOkOnDate(dateStr){
-  const habits = data.habits||[];
+  const habits = (data.habits||[]).filter(h=>{ const c = habitCreatedDate(h); return !c || c<=dateStr; });
   if(!habits.length) return false;
   return habits.every(h=>{
     const marked = !!(h.history||{})[dateStr];
@@ -1639,11 +1644,15 @@ function allHabitsOkOnDate(dateStr){
   });
 }
 function combinedHabitStreak(){
-  if(!(data.habits||[]).length) return 0;
+  const habits = data.habits||[];
+  if(!habits.length) return 0;
   const today = todayLocal();
+  // No contar antes del primer hábito creado (antes no había nada que cumplir).
+  const dates = habits.map(habitCreatedDate).filter(Boolean).sort();
+  const boundary = dates.length ? dates[0] : dateMinus(today, MAX_STREAK_DAYS);
   let cursor = allHabitsOkOnDate(today) ? today : dateMinus(today,1);
   let streak=0;
-  while(allHabitsOkOnDate(cursor)){ streak++; cursor = dateMinus(cursor,1); }
+  while(cursor>=boundary && streak<MAX_STREAK_DAYS && allHabitsOkOnDate(cursor)){ streak++; cursor = dateMinus(cursor,1); }
   return streak;
 }
 
