@@ -249,16 +249,17 @@ app.get('/api/schedule', requireAuth, async (req, res) => {
     acts: rec.acts || {}, link: rec.link || {}, categories: rec.categories || [],
     habits: rec.habits || [], goals: rec.goals || [], habitCategories: rec.habitCategories || [],
     habitsBestStreak: rec.habitsBestStreak || 0, onboarded: !!rec.onboarded,
-    routines: rec.routines || null,
+    routines: rec.routines || null, reminders: rec.reminders || [],
     cell: cellForWeek(rec, weekId), weekId, streak: streakFromVisits(visits),
     minWeek: MIN_WEEK, maxWeek: MAX_WEEK
   });
 });
 
 app.put('/api/schedule', requireAuth, async (req, res) => {
-  const { week, acts, link, categories, cell, habits, goals, habitCategories, habitsBestStreak, routines } = req.body || {};
+  const { week, acts, link, categories, cell, habits, goals, habitCategories, habitsBestStreak, routines, reminders } = req.body || {};
   if (typeof acts !== 'object' || typeof link !== 'object' || typeof cell !== 'object' || !Array.isArray(categories)
-    || !Array.isArray(habits || []) || !Array.isArray(goals || []) || !Array.isArray(habitCategories || [])) {
+    || !Array.isArray(habits || []) || !Array.isArray(goals || []) || !Array.isArray(habitCategories || [])
+    || !Array.isArray(reminders || [])) {
     return res.status(400).json({ error: 'Formato de horario inválido.' });
   }
   if (!WEEK_RE.test(week || '')) return res.status(400).json({ error: 'Semana inválida.' });
@@ -275,7 +276,8 @@ app.put('/api/schedule', requireAuth, async (req, res) => {
     habits: habits || prev.habits || [], goals: goals || prev.goals || [],
     habitCategories: habitCategories || prev.habitCategories || [],
     habitsBestStreak: Number.isFinite(habitsBestStreak) ? habitsBestStreak : (prev.habitsBestStreak || 0),
-    routines: (routines && typeof routines === 'object' && !Array.isArray(routines)) ? routines : (prev.routines || null)
+    routines: (routines && typeof routines === 'object' && !Array.isArray(routines)) ? routines : (prev.routines || null),
+    reminders: reminders || prev.reminders || []
   };
   await saveSchedules(schedules);
   res.json({ ok: true });

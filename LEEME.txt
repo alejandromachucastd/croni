@@ -49,10 +49,13 @@ NUEVO: CRONÓMETRO, CUIDADO PERSONAL Y DIETA
   cambiar la hora de inicio o detenerlo.
 - Cuidado personal: rutina de skincare de mañana y de noche para
   palomear cada día, con los últimos 7 días y tu racha.
-- Dieta: comidas del día (cada una con su plan de qué comer), vasos de
-  agua con meta ajustable y reglas del día (sin refresco, etc.), con
-  racha de días cumplidos.
-- En ambas secciones, "Editar" te deja agregar, renombrar y borrar.
+- Dieta: "Mis objetivos" calcula tus calorías y macros (Mifflin-St
+  Jeor) según tus datos y objetivo. Registras alimentos por comida
+  (con "Mis alimentos" para autocompletar), agua, reglas del día y tu
+  peso con gráfica, IMC y resumen de los últimos 7 días.
+- Recordatorios: de una vez o que se repiten (diario, entre semana o
+  días específicos). Avisan a su hora dentro de la app y, si activas
+  los permisos, con notificación del navegador.
 - El menú lateral se queda fijo; solo se desplaza el contenido.
 
 ACTIVAR EL ENVÍO DE CORREO PARA "OLVIDÉ MI CONTRASEÑA" (opcional)
